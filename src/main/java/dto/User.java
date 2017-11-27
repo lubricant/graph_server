@@ -1,0 +1,55 @@
+package dto;
+
+import io.protostuff.LinkedBuffer;
+import io.protostuff.ProtostuffIOUtil;
+import io.protostuff.Tag;
+import io.protostuff.runtime.RuntimeSchema;
+
+public class User {
+
+    @Tag(1)
+    private Long id;
+
+    @Tag(2)
+    private String name;
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
+
+    public static void main(String[] args) {
+        User user = new User();
+        user.setId(123L);
+        user.setName("Alice");
+
+        RuntimeSchema<User> schema = RuntimeSchema.createFrom(User.class);
+
+        LinkedBuffer buf = LinkedBuffer.allocate();
+        byte[] data = ProtostuffIOUtil.toByteArray(user, schema, buf);
+        buf.clear();
+
+        User u = schema.newMessage();
+        ProtostuffIOUtil.mergeFrom(data, u, schema);
+        System.out.println(u);
+    }
+}
