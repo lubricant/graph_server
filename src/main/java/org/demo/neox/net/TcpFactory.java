@@ -10,7 +10,14 @@ public class TcpFactory {
 		Runtime.getRuntime().addShutdownHook(
 				new Thread(vertx::close));
 	}
-	
+
+	public static TcpClient newClient(String ip, int port) {
+		try {
+			return new TcpClient(ip, port, vertx);
+		} catch (Exception ex) {}
+		return null;
+	}
+
 //	static <T> TcpRequest<T> newRequest(
 //			long sequence, int timeout, Class<T> clazz) {
 //		
