@@ -21,16 +21,12 @@ class TcpSocket {
 	TcpSocket(NetSocket socket) {
 		this.socket = socket;
 		socket.handler(buf -> {
-			
 		});
 		socket.closeHandler(none -> {
-			
 		});
 		socket.exceptionHandler(err -> {
-			
 		});
 	}
-	
 	
 	
 }

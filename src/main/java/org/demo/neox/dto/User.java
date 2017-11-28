@@ -1,9 +1,12 @@
-package dto;
+package org.demo.neox.dto;
 
-import io.protostuff.LinkedBuffer;
-import io.protostuff.ProtostuffIOUtil;
+import java.io.IOException;
+
+import org.demo.neox.base.Serialization;
+
+import io.netty.buffer.ByteBuf;
 import io.protostuff.Tag;
-import io.protostuff.runtime.RuntimeSchema;
+import io.vertx.core.buffer.Buffer;
 
 public class User {
 
@@ -37,19 +40,19 @@ public class User {
                 '}';
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         User user = new User();
         user.setId(123L);
         user.setName("Alice");
 
-        RuntimeSchema<User> schema = RuntimeSchema.createFrom(User.class);
-
-        LinkedBuffer buf = LinkedBuffer.allocate();
-        byte[] data = ProtostuffIOUtil.toByteArray(user, schema, buf);
-        buf.clear();
-
-        User u = schema.newMessage();
-        ProtostuffIOUtil.mergeFrom(data, u, schema);
-        System.out.println(u);
+//        RuntimeSchema<User> schema = RuntimeSchema.createFrom(User.class);
+//        
+//        LinkedBuffer buf = LinkedBuffer.allocate();
+//        byte[] data = ProtostuffIOUtil.toByteArray(user, schema, buf);
+//        buf.clear();
+//
+//        User u = schema.newMessage();
+//        ProtostuffIOUtil.mergeFrom(data, u, schema);
+        
     }
 }

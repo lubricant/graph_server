@@ -31,7 +31,8 @@ class TcpVerticle extends AbstractVerticle {
 			logger.info("Socket is connected.");
 			
 			socket.handler( buffer -> {
-				socket.write("Hello World");
+				socket.write("Hello ");
+				vertx.setTimer(100, (x)-> socket.write("World"));
 				logger.info("Data transfer.");
 			});
 			
