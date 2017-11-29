@@ -1,23 +1,23 @@
 package org.demo.neox.net;
 
-import java.io.IOException;
 import java.net.SocketException;
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 import io.netty.util.internal.PlatformDependent;
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetSocket;
-import org.apache.commons.lang3.Validate;
-import org.demo.neox.base.Protocol;
+import org.demo.neox.rpc.Message;
+import org.demo.neox.rpc.Protocol;
 
 public class TcpClient {
 	
@@ -29,11 +29,12 @@ public class TcpClient {
 	private NetClient client;
 	private NetSocket socket;
 
-	TcpClient(String ip, int port, Vertx vertx) throws Exception {
+	TcpClient(String ip, int port, Vertx vertx, Consumer<TcpClient> cleaner) throws Exception {
 		this.vertx = vertx;
 		this.logger = LoggerFactory.getLogger(String.format("TcpClient-[%s:%d]", ip, port));
-		Validate.isTrue( connect(ip, port), "Fail to initialize TcpClient-[%s:%d].", ip, port);
-		this.init();
+		if (! connect(ip, port))
+			throw new IllegalStateException(String.format("Fail to initialize TcpClient-[%s:%d].", ip, port));
+		this.init(cleaner);
 	}
 
 	private boolean connect(String ip, int port){
@@ -65,36 +66,44 @@ public class TcpClient {
 		return true;
 	}
 
-	private void init() {
-		this.socket.handler(buffer -> {
+	private void init(Consumer<TcpClient> cleaner) {
+		socket.handler(buffer -> {
+
+			Protocol.checkBuffer(buffer);
 			long sequence = Protocol.readSequence(buffer);
+			long marker = Protocol.readMarker(buffer);
+
 			TcpRequest request = requestHolder.remove(sequence);
 
 			boolean waiting = false;
 			if (request != null) try {
-				waiting = request.success(Protocol.readMessage(buffer, request.clazz()));
+				if (marker == Message.BUSINESS_MESSAGE) {
+					waiting = request.success(
+							Protocol.readMessage(buffer, request.clazz()), true);
+				} else {
+
+				}
+
 			} catch (Exception e) {
 				logger.error("Error occurred while parsing buffer.", e);
 				waiting = request.fail(e);
 			}
 
 			if (waiting) vertx.cancelTimer(request.timer());
+		});
 
-		});
-		this.socket.exceptionHandler(error -> {
-			logger.error(error);
-		});
-		this.socket.closeHandler(ignored -> {
+		socket.closeHandler(ignored -> {
 			final Throwable error = new SocketException("Socket closed.");
 			this.requestHolder.forEach((seq, req)->req.fail(error));
 			this.requestHolder.clear();
+			cleaner.accept(this);
 		});
+
+		socket.exceptionHandler(logger::error);
 	}
 
-	private TcpRequest prepare(Class<?> clazz, long timeout) {
-		long sequence = sequenceHolder.incrementAndGet();
+	private TcpRequest prepare(Class<? extends Message> clazz, long sequence, long timeout) {
 		TcpRequest request = new TcpRequest(clazz,
-				(tcpRequest -> sequence),
 				(tcpRequest -> vertx.setTimer(timeout, id->{
 					if (tcpRequest.timeout(timeout)) {
 						requestHolder.remove(sequence);
@@ -104,10 +113,26 @@ public class TcpClient {
 		return request;
 	}
 
-	public <Request, Response> void call(
-			Request reqMsg, Class<Request> reqClazz, Class<Response> respClazz) {
-		TcpRequest request = prepare(respClazz, 100);
-		socket.write(Protocol.writeBuffer(request.sequence(), reqMsg, reqClazz));
+	public <Request extends Message, Response extends Message>
+	Message sendAndRecv(
+			Request reqMsg, Class<Request> reqClazz,
+			Class<Response> respClazz, long timeoutMills) throws Throwable {
+
+		long reqSeq = sequenceHolder.incrementAndGet();
+		Buffer buffer = Protocol.writeBuffer(reqSeq,
+				Message.BUSINESS_MESSAGE, reqMsg, reqClazz);
+
+		TcpRequest request = prepare(respClazz, reqSeq, timeoutMills);
+		request.await(timeoutMills, ()->socket.write(buffer));
+
+		switch (request.state()) {
+			case TIMEOUT: case FAIL:
+				throw (Throwable) request.result();
+			case WAITING:
+				throw new IllegalStateException("Request is still waiting.");
+		}
+
+		return request.result();
 	}
 
 

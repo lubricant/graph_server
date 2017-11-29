@@ -1,6 +1,9 @@
 package org.demo.neox.net;
 
+import io.netty.util.internal.PlatformDependent;
 import io.vertx.core.Vertx;
+
+import java.util.concurrent.ConcurrentMap;
 
 public class TcpFactory {
 
@@ -11,19 +14,27 @@ public class TcpFactory {
 				new Thread(vertx::close));
 	}
 
-	public static TcpClient newClient(String ip, int port) {
-		try {
-			return new TcpClient(ip, port, vertx);
-		} catch (Exception ex) {}
-		return null;
+	static final ConcurrentMap<TcpAddress, TcpClient>
+		clientHolder = PlatformDependent.newConcurrentHashMap();
+
+	synchronized static TcpClient newClient(TcpAddress address) throws Exception {
+		TcpClient client = clientHolder.get(address);
+		if (client != null) {
+			return client;
+		}
+
+		client = new TcpClient(address.ip, address.port, vertx, tcpClient -> clientHolder.remove(address) );
+		clientHolder.put(address, client);
+		return client;
 	}
 
-//	static <T> TcpRequest<T> newRequest(
-//			long sequence, int timeout, Class<T> clazz) {
-//		
-//		long timer = vertx.setTimer(timeout, id->{});
-//		TcpRequest<T> request = new TcpRequest<>(sequence, timer, clazz);
-//		return null;
-//	}
-//	
+	public static TcpClient getClient(String ip, int port) throws Exception {
+		TcpAddress tpcAddress = new TcpAddress(ip, port);
+		TcpClient tcpClient = clientHolder.get(tpcAddress);
+		if (tcpClient == null) {
+			tcpClient = newClient(tpcAddress);
+		}
+		return tcpClient;
+	}
+
 }

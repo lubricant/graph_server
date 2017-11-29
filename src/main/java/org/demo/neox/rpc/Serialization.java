@@ -1,4 +1,4 @@
-package org.demo.neox.base;
+package org.demo.neox.rpc;
 
 
 import java.io.IOException;

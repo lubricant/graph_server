@@ -1,12 +1,6 @@
 package org.demo.neox.dto;
 
-import java.io.IOException;
-
-import org.demo.neox.base.Serialization;
-
-import io.netty.buffer.ByteBuf;
 import io.protostuff.Tag;
-import io.vertx.core.buffer.Buffer;
 
 public class User {
 
