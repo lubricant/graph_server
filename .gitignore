@@ -26,3 +26,13 @@ hs_err_pid*
 /*.classpath
 /*.project
 /.settings
+/social-graph-api/*.classpath
+/social-graph-api/*.project
+/social-graph-api/.settings
+/social-graph-api/bin
+/social-graph-api/build
+/social-graph-service/*.classpath
+/social-graph-service/*.project
+/social-graph-service/.settings
+/social-graph-service/bin
+/social-graph-service/build

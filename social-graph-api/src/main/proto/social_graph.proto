@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+option java_package = "com.soga.social.service";
+option java_outer_classname = "SocialGraph";
+option java_multiple_files = true;
+
+package social;
+
+
+service SocialGraphService {
+	
+	rpc createPerson(PersonKey) returns (Result) {}
+	rpc removePerson(PersonKey) returns (PersonConn) {}
+	
+	rpc connectPerson(ConnectionKey) returns (Result) {}
+	rpc disconnectPerson(ConnectionKey) returns (ConnPerson) {}
+	
+	rpc updatePerson(Person) returns (Result) {}
+	rpc updateConnection(Connection) returns (Result) {}
+	
+	rpc traverse(TraversalDesc) returns (TraversalTree) {}
+}
+
+message PersonKey {
+	string id = 1;
+}
+
+message ConnectionKey {
+	string src = 1;
+	string dst = 2;
+}
+
+message Person {
+	string id = 1;
+	map<string, string> props = 2;
+}
+
+message Connection {
+	string src = 1;
+	string dst = 2;
+	map<string, string> props = 3;
+}
+
+message PersonConn {
+	Person person = 1;
+	repeated Connection connections = 2;
+}
+
+message ConnPerson {
+	repeated Person person = 1;
+	Connection connections = 2;
+}
+
+message Result {
+	
+	enum Status {
+		SUCCESS = 0;
+		FAILURE = 1;
+		IGNORED = 2;
+	}
+
+	Status state = 1;
+	string hint = 2;
+}
+
+message TraversalDesc {
+	string root = 1;
+	int32 depth = 2;
+	int64 token = 3;
+}
+
+message TraversalNode {
+	int32 depth = 1;
+	Person person = 2;
+	Connection connection = 3;
+	repeated TraversalNode adjoin = 4;
+}
+
+message TraversalTree {
+	int64 token = 1;
+	TraversalNode root = 2;
+}
