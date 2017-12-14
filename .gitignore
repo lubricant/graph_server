@@ -26,6 +26,7 @@ hs_err_pid*
 /*.classpath
 /*.project
 /.settings
+/.gradle
 /social-graph-api/*.classpath
 /social-graph-api/*.project
 /social-graph-api/.settings
