@@ -105,7 +105,7 @@ public final class SocialGraph {
       "tion\030\003 \001(\0132\022.social.Connection\022%\n\006adjoin" +
       "\030\004 \003(\0132\025.social.TraversalNode\"C\n\rTravers" +
       "alTree\022\r\n\005token\030\001 \001(\003\022#\n\004root\030\002 \001(\0132\025.so" +
-      "cial.TraversalNode2\245\003\n\022SocialGraphServic" +
+      "cial.TraversalNode2\252\003\n\022SocialGraphServic" +
       "e\0223\n\014createPerson\022\021.social.PersonKey\032\016.s" +
       "ocial.Result\"\000\0227\n\014removePerson\022\021.social." +
       "PersonKey\032\022.social.PersonConn\"\000\0228\n\rconne" +
@@ -114,10 +114,10 @@ public final class SocialGraph {
       "onnectionKey\032\022.social.ConnPerson\"\000\0220\n\014up" +
       "datePerson\022\016.social.Person\032\016.social.Resu" +
       "lt\"\000\0228\n\020updateConnection\022\022.social.Connec" +
-      "tion\032\016.social.Result\"\000\022:\n\010traverse\022\025.soc" +
-      "ial.TraversalDesc\032\025.social.TraversalTree" +
-      "\"\000B(\n\027com.soga.social.serviceB\013SocialGra" +
-      "phP\001b\006proto3"
+      "tion\032\016.social.Result\"\000\022?\n\rtraverseGraph\022" +
+      "\025.social.TraversalDesc\032\025.social.Traversa" +
+      "lTree\"\000B(\n\027com.soga.social.serviceB\013Soci" +
+      "alGraphP\001b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {

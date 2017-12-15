@@ -18,7 +18,7 @@ service SocialGraphService {
 	rpc updatePerson(Person) returns (Result) {}
 	rpc updateConnection(Connection) returns (Result) {}
 	
-	rpc traverse(TraversalDesc) returns (TraversalTree) {}
+	rpc traverseGraph(TraversalDesc) returns (TraversalTree) {}
 }
 
 message PersonKey {

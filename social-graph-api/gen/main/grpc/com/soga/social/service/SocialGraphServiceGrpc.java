@@ -220,36 +220,36 @@ public final class SocialGraphServiceGrpc {
      return getUpdateConnectionMethod;
   }
   @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
-  @java.lang.Deprecated // Use {@link #getTraverseMethod()} instead. 
+  @java.lang.Deprecated // Use {@link #getTraverseGraphMethod()} instead. 
   public static final io.grpc.MethodDescriptor<com.soga.social.service.TraversalDesc,
-      com.soga.social.service.TraversalTree> METHOD_TRAVERSE = getTraverseMethod();
+      com.soga.social.service.TraversalTree> METHOD_TRAVERSE_GRAPH = getTraverseGraphMethod();
 
   private static volatile io.grpc.MethodDescriptor<com.soga.social.service.TraversalDesc,
-      com.soga.social.service.TraversalTree> getTraverseMethod;
+      com.soga.social.service.TraversalTree> getTraverseGraphMethod;
 
   @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<com.soga.social.service.TraversalDesc,
-      com.soga.social.service.TraversalTree> getTraverseMethod() {
-    io.grpc.MethodDescriptor<com.soga.social.service.TraversalDesc, com.soga.social.service.TraversalTree> getTraverseMethod;
-    if ((getTraverseMethod = SocialGraphServiceGrpc.getTraverseMethod) == null) {
+      com.soga.social.service.TraversalTree> getTraverseGraphMethod() {
+    io.grpc.MethodDescriptor<com.soga.social.service.TraversalDesc, com.soga.social.service.TraversalTree> getTraverseGraphMethod;
+    if ((getTraverseGraphMethod = SocialGraphServiceGrpc.getTraverseGraphMethod) == null) {
       synchronized (SocialGraphServiceGrpc.class) {
-        if ((getTraverseMethod = SocialGraphServiceGrpc.getTraverseMethod) == null) {
-          SocialGraphServiceGrpc.getTraverseMethod = getTraverseMethod = 
+        if ((getTraverseGraphMethod = SocialGraphServiceGrpc.getTraverseGraphMethod) == null) {
+          SocialGraphServiceGrpc.getTraverseGraphMethod = getTraverseGraphMethod = 
               io.grpc.MethodDescriptor.<com.soga.social.service.TraversalDesc, com.soga.social.service.TraversalTree>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
               .setFullMethodName(generateFullMethodName(
-                  "social.SocialGraphService", "traverse"))
+                  "social.SocialGraphService", "traverseGraph"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                   com.soga.social.service.TraversalDesc.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                   com.soga.social.service.TraversalTree.getDefaultInstance()))
-                  .setSchemaDescriptor(new SocialGraphServiceMethodDescriptorSupplier("traverse"))
+                  .setSchemaDescriptor(new SocialGraphServiceMethodDescriptorSupplier("traverseGraph"))
                   .build();
           }
         }
      }
-     return getTraverseMethod;
+     return getTraverseGraphMethod;
   }
 
   /**
@@ -323,9 +323,9 @@ public final class SocialGraphServiceGrpc {
 
     /**
      */
-    public void traverse(com.soga.social.service.TraversalDesc request,
+    public void traverseGraph(com.soga.social.service.TraversalDesc request,
         io.grpc.stub.StreamObserver<com.soga.social.service.TraversalTree> responseObserver) {
-      asyncUnimplementedUnaryCall(getTraverseMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getTraverseGraphMethod(), responseObserver);
     }
 
     @java.lang.Override public final io.grpc.ServerServiceDefinition bindService() {
@@ -373,12 +373,12 @@ public final class SocialGraphServiceGrpc {
                 com.soga.social.service.Result>(
                   this, METHODID_UPDATE_CONNECTION)))
           .addMethod(
-            getTraverseMethod(),
+            getTraverseGraphMethod(),
             asyncUnaryCall(
               new MethodHandlers<
                 com.soga.social.service.TraversalDesc,
                 com.soga.social.service.TraversalTree>(
-                  this, METHODID_TRAVERSE)))
+                  this, METHODID_TRAVERSE_GRAPH)))
           .build();
     }
   }
@@ -451,10 +451,10 @@ public final class SocialGraphServiceGrpc {
 
     /**
      */
-    public void traverse(com.soga.social.service.TraversalDesc request,
+    public void traverseGraph(com.soga.social.service.TraversalDesc request,
         io.grpc.stub.StreamObserver<com.soga.social.service.TraversalTree> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getTraverseMethod(), getCallOptions()), request, responseObserver);
+          getChannel().newCall(getTraverseGraphMethod(), getCallOptions()), request, responseObserver);
     }
   }
 
@@ -520,9 +520,9 @@ public final class SocialGraphServiceGrpc {
 
     /**
      */
-    public com.soga.social.service.TraversalTree traverse(com.soga.social.service.TraversalDesc request) {
+    public com.soga.social.service.TraversalTree traverseGraph(com.soga.social.service.TraversalDesc request) {
       return blockingUnaryCall(
-          getChannel(), getTraverseMethod(), getCallOptions(), request);
+          getChannel(), getTraverseGraphMethod(), getCallOptions(), request);
     }
   }
 
@@ -594,10 +594,10 @@ public final class SocialGraphServiceGrpc {
 
     /**
      */
-    public com.google.common.util.concurrent.ListenableFuture<com.soga.social.service.TraversalTree> traverse(
+    public com.google.common.util.concurrent.ListenableFuture<com.soga.social.service.TraversalTree> traverseGraph(
         com.soga.social.service.TraversalDesc request) {
       return futureUnaryCall(
-          getChannel().newCall(getTraverseMethod(), getCallOptions()), request);
+          getChannel().newCall(getTraverseGraphMethod(), getCallOptions()), request);
     }
   }
 
@@ -607,7 +607,7 @@ public final class SocialGraphServiceGrpc {
   private static final int METHODID_DISCONNECT_PERSON = 3;
   private static final int METHODID_UPDATE_PERSON = 4;
   private static final int METHODID_UPDATE_CONNECTION = 5;
-  private static final int METHODID_TRAVERSE = 6;
+  private static final int METHODID_TRAVERSE_GRAPH = 6;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -650,8 +650,8 @@ public final class SocialGraphServiceGrpc {
           serviceImpl.updateConnection((com.soga.social.service.Connection) request,
               (io.grpc.stub.StreamObserver<com.soga.social.service.Result>) responseObserver);
           break;
-        case METHODID_TRAVERSE:
-          serviceImpl.traverse((com.soga.social.service.TraversalDesc) request,
+        case METHODID_TRAVERSE_GRAPH:
+          serviceImpl.traverseGraph((com.soga.social.service.TraversalDesc) request,
               (io.grpc.stub.StreamObserver<com.soga.social.service.TraversalTree>) responseObserver);
           break;
         default:
@@ -721,7 +721,7 @@ public final class SocialGraphServiceGrpc {
               .addMethod(getDisconnectPersonMethod())
               .addMethod(getUpdatePersonMethod())
               .addMethod(getUpdateConnectionMethod())
-              .addMethod(getTraverseMethod())
+              .addMethod(getTraverseGraphMethod())
               .build();
         }
       }

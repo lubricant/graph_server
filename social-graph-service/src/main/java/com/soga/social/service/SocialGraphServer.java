@@ -1,9 +1,10 @@
 package com.soga.social.service;
 
-import java.io.IOException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.soga.social.config.ConfigLoader;
+import com.soga.social.config.GrpcConfig;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -20,6 +21,8 @@ public final class SocialGraphServer {
 		
 		try {
 			
+			GrpcConfig config = ConfigLoader.getGrpcConfig();
+			
 			serverInstance = ServerBuilder.forPort(2333).
 					addService(new SocialGraphServiceImp()).
 					build();
@@ -35,7 +38,7 @@ public final class SocialGraphServer {
 		
 		try {
 			logger.info("服务已启动");
-			server.awaitTermination();
+			serverInstance.awaitTermination();
 		} catch (InterruptedException e) {
 			logger.error("服务被中断", e);
 		}
