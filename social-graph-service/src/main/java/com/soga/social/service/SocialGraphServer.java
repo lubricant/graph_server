@@ -23,13 +23,14 @@ public final class SocialGraphServer {
 			
 			GrpcConfig config = ConfigLoader.getGrpcConfig();
 			
-			serverInstance = ServerBuilder.forPort(2333).
+			serverInstance = ServerBuilder.forPort(config.getPort()).
 					addService(new SocialGraphServiceImp()).
 					build();
 			
 			serverInstance.start();
+			
 		} catch (Exception e) {
-			logger.error("服务启动失败", e);
+			logger.error("Server fail to start.", e);
 			if (serverInstance != null && !serverInstance.isShutdown()) {
 				serverInstance.shutdownNow();	
 			}
@@ -37,15 +38,15 @@ public final class SocialGraphServer {
 		}
 		
 		try {
-			logger.info("服务已启动");
+			logger.info("Server has started successfully.");
 			serverInstance.awaitTermination();
 		} catch (InterruptedException e) {
-			logger.error("服务被中断", e);
+			logger.error("Server is interrupted.", e);
 		}
 	}
 	
 	public static void shutdown() {
-		logger.warn("服务关闭中");
+		logger.warn("Server is shutting down.");
 		if (serverInstance != null) {
 			serverInstance.shutdown();
 		}

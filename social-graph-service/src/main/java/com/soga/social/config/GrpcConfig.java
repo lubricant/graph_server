@@ -4,13 +4,17 @@ import com.typesafe.config.Config;
 
 public class GrpcConfig {
 	
-	private int port;
+	private final int port;
 	
 	GrpcConfig() {
 		Config rootConfig = ConfigLoader.configInstance;
 		Config grpcConfig = rootConfig.getConfig("grpc");
 		
-		this.port = grpcConfig.getInt("port");
+		port = grpcConfig.getInt("port");
 	}
-	
+
+	public int getPort() {
+		return port;
+	}
+
 }
