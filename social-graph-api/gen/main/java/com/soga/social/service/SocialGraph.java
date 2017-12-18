@@ -83,41 +83,43 @@ public final class SocialGraph {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\022social_graph.proto\022\006social\"\027\n\tPersonKe" +
-      "y\022\n\n\002id\030\001 \001(\t\")\n\rConnectionKey\022\013\n\003src\030\001 " +
-      "\001(\t\022\013\n\003dst\030\002 \001(\t\"l\n\006Person\022\n\n\002id\030\001 \001(\t\022(" +
-      "\n\005props\030\002 \003(\0132\031.social.Person.PropsEntry" +
-      "\032,\n\nPropsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001" +
-      "(\t:\0028\001\"\202\001\n\nConnection\022\013\n\003src\030\001 \001(\t\022\013\n\003ds" +
-      "t\030\002 \001(\t\022,\n\005props\030\003 \003(\0132\035.social.Connecti" +
-      "on.PropsEntry\032,\n\nPropsEntry\022\013\n\003key\030\001 \001(\t" +
-      "\022\r\n\005value\030\002 \001(\t:\0028\001\"U\n\nPersonConn\022\036\n\006per" +
-      "son\030\001 \001(\0132\016.social.Person\022\'\n\013connections" +
-      "\030\002 \003(\0132\022.social.Connection\"U\n\nConnPerson" +
-      "\022\036\n\006person\030\001 \003(\0132\016.social.Person\022\'\n\013conn" +
-      "ections\030\002 \001(\0132\022.social.Connection\"m\n\006Res" +
-      "ult\022$\n\005state\030\001 \001(\0162\025.social.Result.Statu" +
-      "s\022\014\n\004hint\030\002 \001(\t\"/\n\006Status\022\013\n\007SUCCESS\020\000\022\013" +
-      "\n\007FAILURE\020\001\022\013\n\007IGNORED\020\002\";\n\rTraversalDes" +
-      "c\022\014\n\004root\030\001 \001(\t\022\r\n\005depth\030\002 \001(\005\022\r\n\005token\030" +
-      "\003 \001(\003\"\215\001\n\rTraversalNode\022\r\n\005depth\030\001 \001(\005\022\036" +
-      "\n\006person\030\002 \001(\0132\016.social.Person\022&\n\nconnec" +
-      "tion\030\003 \001(\0132\022.social.Connection\022%\n\006adjoin" +
-      "\030\004 \003(\0132\025.social.TraversalNode\"C\n\rTravers" +
-      "alTree\022\r\n\005token\030\001 \001(\003\022#\n\004root\030\002 \001(\0132\025.so" +
-      "cial.TraversalNode2\252\003\n\022SocialGraphServic" +
-      "e\0223\n\014createPerson\022\021.social.PersonKey\032\016.s" +
-      "ocial.Result\"\000\0227\n\014removePerson\022\021.social." +
-      "PersonKey\032\022.social.PersonConn\"\000\0228\n\rconne" +
-      "ctPerson\022\025.social.ConnectionKey\032\016.social" +
-      ".Result\"\000\022?\n\020disconnectPerson\022\025.social.C" +
-      "onnectionKey\032\022.social.ConnPerson\"\000\0220\n\014up" +
-      "datePerson\022\016.social.Person\032\016.social.Resu" +
-      "lt\"\000\0228\n\020updateConnection\022\022.social.Connec" +
-      "tion\032\016.social.Result\"\000\022?\n\rtraverseGraph\022" +
-      "\025.social.TraversalDesc\032\025.social.Traversa" +
-      "lTree\"\000B(\n\027com.soga.social.serviceB\013Soci" +
-      "alGraphP\001b\006proto3"
+      "\n\022social_graph.proto\022\006social\032\031google/pro" +
+      "tobuf/any.proto\"\027\n\tPersonKey\022\n\n\002id\030\001 \001(\t" +
+      "\")\n\rConnectionKey\022\013\n\003src\030\001 \001(\t\022\013\n\003dst\030\002 " +
+      "\001(\t\"\202\001\n\006Person\022\n\n\002id\030\001 \001(\t\022(\n\005props\030\002 \003(" +
+      "\0132\031.social.Person.PropsEntry\032B\n\nPropsEnt" +
+      "ry\022\013\n\003key\030\001 \001(\t\022#\n\005value\030\002 \001(\0132\024.google." +
+      "protobuf.Any:\0028\001\"\230\001\n\nConnection\022\013\n\003src\030\001" +
+      " \001(\t\022\013\n\003dst\030\002 \001(\t\022,\n\005props\030\003 \003(\0132\035.socia" +
+      "l.Connection.PropsEntry\032B\n\nPropsEntry\022\013\n" +
+      "\003key\030\001 \001(\t\022#\n\005value\030\002 \001(\0132\024.google.proto" +
+      "buf.Any:\0028\001\"U\n\nPersonConn\022\036\n\006person\030\001 \001(" +
+      "\0132\016.social.Person\022\'\n\013connections\030\002 \003(\0132\022" +
+      ".social.Connection\"U\n\nConnPerson\022\036\n\006pers" +
+      "on\030\001 \003(\0132\016.social.Person\022\'\n\013connections\030" +
+      "\002 \001(\0132\022.social.Connection\"m\n\006Result\022$\n\005s" +
+      "tate\030\001 \001(\0162\025.social.Result.Status\022\014\n\004hin" +
+      "t\030\002 \001(\t\"/\n\006Status\022\013\n\007SUCCESS\020\000\022\013\n\007FAILUR" +
+      "E\020\001\022\013\n\007IGNORED\020\002\"M\n\rTraversalDesc\022\014\n\004roo" +
+      "t\030\001 \001(\t\022\r\n\005depth\030\002 \001(\005\022\016\n\006ticket\030\003 \001(\003\022\017" +
+      "\n\007oneshot\030\004 \001(\010\"\215\001\n\rTraversalNode\022\r\n\005dep" +
+      "th\030\001 \001(\005\022\036\n\006person\030\002 \001(\0132\016.social.Person" +
+      "\022&\n\nconnection\030\003 \001(\0132\022.social.Connection" +
+      "\022%\n\006adjoin\030\004 \003(\0132\025.social.TraversalNode\"" +
+      "D\n\rTraversalTree\022\016\n\006ticket\030\001 \001(\003\022#\n\004root" +
+      "\030\002 \001(\0132\025.social.TraversalNode2\252\003\n\022Social" +
+      "GraphService\0223\n\014createPerson\022\021.social.Pe" +
+      "rsonKey\032\016.social.Result\"\000\0227\n\014removePerso" +
+      "n\022\021.social.PersonKey\032\022.social.PersonConn" +
+      "\"\000\0228\n\rconnectPerson\022\025.social.ConnectionK" +
+      "ey\032\016.social.Result\"\000\022?\n\020disconnectPerson" +
+      "\022\025.social.ConnectionKey\032\022.social.ConnPer" +
+      "son\"\000\0220\n\014updatePerson\022\016.social.Person\032\016." +
+      "social.Result\"\000\0228\n\020updateConnection\022\022.so" +
+      "cial.Connection\032\016.social.Result\"\000\022?\n\rtra" +
+      "verseGraph\022\025.social.TraversalDesc\032\025.soci" +
+      "al.TraversalTree\"\000B(\n\027com.soga.social.se" +
+      "rviceB\013SocialGraphP\001b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -130,6 +132,7 @@ public final class SocialGraph {
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
+          com.google.protobuf.AnyProto.getDescriptor(),
         }, assigner);
     internal_static_social_PersonKey_descriptor =
       getDescriptor().getMessageTypes().get(0);
@@ -190,7 +193,7 @@ public final class SocialGraph {
     internal_static_social_TraversalDesc_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_social_TraversalDesc_descriptor,
-        new java.lang.String[] { "Root", "Depth", "Token", });
+        new java.lang.String[] { "Root", "Depth", "Ticket", "Oneshot", });
     internal_static_social_TraversalNode_descriptor =
       getDescriptor().getMessageTypes().get(8);
     internal_static_social_TraversalNode_fieldAccessorTable = new
@@ -202,7 +205,8 @@ public final class SocialGraph {
     internal_static_social_TraversalTree_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_social_TraversalTree_descriptor,
-        new java.lang.String[] { "Token", "Root", });
+        new java.lang.String[] { "Ticket", "Root", });
+    com.google.protobuf.AnyProto.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)

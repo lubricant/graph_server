@@ -18,7 +18,8 @@ private static final long serialVersionUID = 0L;
   private TraversalDesc() {
     root_ = "";
     depth_ = 0;
-    token_ = 0L;
+    ticket_ = 0L;
+    oneshot_ = false;
   }
 
   @java.lang.Override
@@ -65,7 +66,12 @@ private static final long serialVersionUID = 0L;
           }
           case 24: {
 
-            token_ = input.readInt64();
+            ticket_ = input.readInt64();
+            break;
+          }
+          case 32: {
+
+            oneshot_ = input.readBool();
             break;
           }
         }
@@ -135,13 +141,22 @@ private static final long serialVersionUID = 0L;
     return depth_;
   }
 
-  public static final int TOKEN_FIELD_NUMBER = 3;
-  private long token_;
+  public static final int TICKET_FIELD_NUMBER = 3;
+  private long ticket_;
   /**
-   * <code>int64 token = 3;</code>
+   * <code>int64 ticket = 3;</code>
    */
-  public long getToken() {
-    return token_;
+  public long getTicket() {
+    return ticket_;
+  }
+
+  public static final int ONESHOT_FIELD_NUMBER = 4;
+  private boolean oneshot_;
+  /**
+   * <code>bool oneshot = 4;</code>
+   */
+  public boolean getOneshot() {
+    return oneshot_;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -162,8 +177,11 @@ private static final long serialVersionUID = 0L;
     if (depth_ != 0) {
       output.writeInt32(2, depth_);
     }
-    if (token_ != 0L) {
-      output.writeInt64(3, token_);
+    if (ticket_ != 0L) {
+      output.writeInt64(3, ticket_);
+    }
+    if (oneshot_ != false) {
+      output.writeBool(4, oneshot_);
     }
     unknownFields.writeTo(output);
   }
@@ -180,9 +198,13 @@ private static final long serialVersionUID = 0L;
       size += com.google.protobuf.CodedOutputStream
         .computeInt32Size(2, depth_);
     }
-    if (token_ != 0L) {
+    if (ticket_ != 0L) {
       size += com.google.protobuf.CodedOutputStream
-        .computeInt64Size(3, token_);
+        .computeInt64Size(3, ticket_);
+    }
+    if (oneshot_ != false) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBoolSize(4, oneshot_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -204,8 +226,10 @@ private static final long serialVersionUID = 0L;
         .equals(other.getRoot());
     result = result && (getDepth()
         == other.getDepth());
-    result = result && (getToken()
-        == other.getToken());
+    result = result && (getTicket()
+        == other.getTicket());
+    result = result && (getOneshot()
+        == other.getOneshot());
     result = result && unknownFields.equals(other.unknownFields);
     return result;
   }
@@ -221,9 +245,12 @@ private static final long serialVersionUID = 0L;
     hash = (53 * hash) + getRoot().hashCode();
     hash = (37 * hash) + DEPTH_FIELD_NUMBER;
     hash = (53 * hash) + getDepth();
-    hash = (37 * hash) + TOKEN_FIELD_NUMBER;
+    hash = (37 * hash) + TICKET_FIELD_NUMBER;
     hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-        getToken());
+        getTicket());
+    hash = (37 * hash) + ONESHOT_FIELD_NUMBER;
+    hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+        getOneshot());
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -357,7 +384,9 @@ private static final long serialVersionUID = 0L;
 
       depth_ = 0;
 
-      token_ = 0L;
+      ticket_ = 0L;
+
+      oneshot_ = false;
 
       return this;
     }
@@ -383,7 +412,8 @@ private static final long serialVersionUID = 0L;
       com.soga.social.service.TraversalDesc result = new com.soga.social.service.TraversalDesc(this);
       result.root_ = root_;
       result.depth_ = depth_;
-      result.token_ = token_;
+      result.ticket_ = ticket_;
+      result.oneshot_ = oneshot_;
       onBuilt();
       return result;
     }
@@ -432,8 +462,11 @@ private static final long serialVersionUID = 0L;
       if (other.getDepth() != 0) {
         setDepth(other.getDepth());
       }
-      if (other.getToken() != 0L) {
-        setToken(other.getToken());
+      if (other.getTicket() != 0L) {
+        setTicket(other.getTicket());
+      }
+      if (other.getOneshot() != false) {
+        setOneshot(other.getOneshot());
       }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
@@ -557,28 +590,54 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
-    private long token_ ;
+    private long ticket_ ;
     /**
-     * <code>int64 token = 3;</code>
+     * <code>int64 ticket = 3;</code>
      */
-    public long getToken() {
-      return token_;
+    public long getTicket() {
+      return ticket_;
     }
     /**
-     * <code>int64 token = 3;</code>
+     * <code>int64 ticket = 3;</code>
      */
-    public Builder setToken(long value) {
+    public Builder setTicket(long value) {
       
-      token_ = value;
+      ticket_ = value;
       onChanged();
       return this;
     }
     /**
-     * <code>int64 token = 3;</code>
+     * <code>int64 ticket = 3;</code>
      */
-    public Builder clearToken() {
+    public Builder clearTicket() {
       
-      token_ = 0L;
+      ticket_ = 0L;
+      onChanged();
+      return this;
+    }
+
+    private boolean oneshot_ ;
+    /**
+     * <code>bool oneshot = 4;</code>
+     */
+    public boolean getOneshot() {
+      return oneshot_;
+    }
+    /**
+     * <code>bool oneshot = 4;</code>
+     */
+    public Builder setOneshot(boolean value) {
+      
+      oneshot_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>bool oneshot = 4;</code>
+     */
+    public Builder clearOneshot() {
+      
+      oneshot_ = false;
       onChanged();
       return this;
     }

@@ -8,9 +8,9 @@ public interface TraversalTreeOrBuilder extends
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   * <code>int64 token = 1;</code>
+   * <code>int64 ticket = 1;</code>
    */
-  long getToken();
+  long getTicket();
 
   /**
    * <code>.social.TraversalNode root = 2;</code>

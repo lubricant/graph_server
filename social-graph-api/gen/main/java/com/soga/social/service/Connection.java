@@ -69,7 +69,7 @@ private static final long serialVersionUID = 0L;
                   PropsDefaultEntryHolder.defaultEntry);
               mutable_bitField0_ |= 0x00000004;
             }
-            com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+            com.google.protobuf.MapEntry<java.lang.String, com.google.protobuf.Any>
             props__ = input.readMessage(
                 PropsDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
             props_.getMutableMap().put(
@@ -183,18 +183,18 @@ private static final long serialVersionUID = 0L;
   public static final int PROPS_FIELD_NUMBER = 3;
   private static final class PropsDefaultEntryHolder {
     static final com.google.protobuf.MapEntry<
-        java.lang.String, java.lang.String> defaultEntry =
+        java.lang.String, com.google.protobuf.Any> defaultEntry =
             com.google.protobuf.MapEntry
-            .<java.lang.String, java.lang.String>newDefaultInstance(
+            .<java.lang.String, com.google.protobuf.Any>newDefaultInstance(
                 com.soga.social.service.SocialGraph.internal_static_social_Connection_PropsEntry_descriptor, 
                 com.google.protobuf.WireFormat.FieldType.STRING,
                 "",
-                com.google.protobuf.WireFormat.FieldType.STRING,
-                "");
+                com.google.protobuf.WireFormat.FieldType.MESSAGE,
+                com.google.protobuf.Any.getDefaultInstance());
   }
   private com.google.protobuf.MapField<
-      java.lang.String, java.lang.String> props_;
-  private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+      java.lang.String, com.google.protobuf.Any> props_;
+  private com.google.protobuf.MapField<java.lang.String, com.google.protobuf.Any>
   internalGetProps() {
     if (props_ == null) {
       return com.google.protobuf.MapField.emptyMapField(
@@ -207,7 +207,7 @@ private static final long serialVersionUID = 0L;
     return internalGetProps().getMap().size();
   }
   /**
-   * <code>map&lt;string, string&gt; props = 3;</code>
+   * <code>map&lt;string, .google.protobuf.Any&gt; props = 3;</code>
    */
 
   public boolean containsProps(
@@ -219,36 +219,36 @@ private static final long serialVersionUID = 0L;
    * Use {@link #getPropsMap()} instead.
    */
   @java.lang.Deprecated
-  public java.util.Map<java.lang.String, java.lang.String> getProps() {
+  public java.util.Map<java.lang.String, com.google.protobuf.Any> getProps() {
     return getPropsMap();
   }
   /**
-   * <code>map&lt;string, string&gt; props = 3;</code>
+   * <code>map&lt;string, .google.protobuf.Any&gt; props = 3;</code>
    */
 
-  public java.util.Map<java.lang.String, java.lang.String> getPropsMap() {
+  public java.util.Map<java.lang.String, com.google.protobuf.Any> getPropsMap() {
     return internalGetProps().getMap();
   }
   /**
-   * <code>map&lt;string, string&gt; props = 3;</code>
+   * <code>map&lt;string, .google.protobuf.Any&gt; props = 3;</code>
    */
 
-  public java.lang.String getPropsOrDefault(
+  public com.google.protobuf.Any getPropsOrDefault(
       java.lang.String key,
-      java.lang.String defaultValue) {
+      com.google.protobuf.Any defaultValue) {
     if (key == null) { throw new java.lang.NullPointerException(); }
-    java.util.Map<java.lang.String, java.lang.String> map =
+    java.util.Map<java.lang.String, com.google.protobuf.Any> map =
         internalGetProps().getMap();
     return map.containsKey(key) ? map.get(key) : defaultValue;
   }
   /**
-   * <code>map&lt;string, string&gt; props = 3;</code>
+   * <code>map&lt;string, .google.protobuf.Any&gt; props = 3;</code>
    */
 
-  public java.lang.String getPropsOrThrow(
+  public com.google.protobuf.Any getPropsOrThrow(
       java.lang.String key) {
     if (key == null) { throw new java.lang.NullPointerException(); }
-    java.util.Map<java.lang.String, java.lang.String> map =
+    java.util.Map<java.lang.String, com.google.protobuf.Any> map =
         internalGetProps().getMap();
     if (!map.containsKey(key)) {
       throw new java.lang.IllegalArgumentException();
@@ -294,9 +294,9 @@ private static final long serialVersionUID = 0L;
     if (!getDstBytes().isEmpty()) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, dst_);
     }
-    for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
+    for (java.util.Map.Entry<java.lang.String, com.google.protobuf.Any> entry
          : internalGetProps().getMap().entrySet()) {
-      com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+      com.google.protobuf.MapEntry<java.lang.String, com.google.protobuf.Any>
       props__ = PropsDefaultEntryHolder.defaultEntry.newBuilderForType()
           .setKey(entry.getKey())
           .setValue(entry.getValue())
@@ -748,8 +748,8 @@ private static final long serialVersionUID = 0L;
     }
 
     private com.google.protobuf.MapField<
-        java.lang.String, java.lang.String> props_;
-    private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+        java.lang.String, com.google.protobuf.Any> props_;
+    private com.google.protobuf.MapField<java.lang.String, com.google.protobuf.Any>
     internalGetProps() {
       if (props_ == null) {
         return com.google.protobuf.MapField.emptyMapField(
@@ -757,7 +757,7 @@ private static final long serialVersionUID = 0L;
       }
       return props_;
     }
-    private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+    private com.google.protobuf.MapField<java.lang.String, com.google.protobuf.Any>
     internalGetMutableProps() {
       onChanged();;
       if (props_ == null) {
@@ -774,7 +774,7 @@ private static final long serialVersionUID = 0L;
       return internalGetProps().getMap().size();
     }
     /**
-     * <code>map&lt;string, string&gt; props = 3;</code>
+     * <code>map&lt;string, .google.protobuf.Any&gt; props = 3;</code>
      */
 
     public boolean containsProps(
@@ -786,36 +786,36 @@ private static final long serialVersionUID = 0L;
      * Use {@link #getPropsMap()} instead.
      */
     @java.lang.Deprecated
-    public java.util.Map<java.lang.String, java.lang.String> getProps() {
+    public java.util.Map<java.lang.String, com.google.protobuf.Any> getProps() {
       return getPropsMap();
     }
     /**
-     * <code>map&lt;string, string&gt; props = 3;</code>
+     * <code>map&lt;string, .google.protobuf.Any&gt; props = 3;</code>
      */
 
-    public java.util.Map<java.lang.String, java.lang.String> getPropsMap() {
+    public java.util.Map<java.lang.String, com.google.protobuf.Any> getPropsMap() {
       return internalGetProps().getMap();
     }
     /**
-     * <code>map&lt;string, string&gt; props = 3;</code>
+     * <code>map&lt;string, .google.protobuf.Any&gt; props = 3;</code>
      */
 
-    public java.lang.String getPropsOrDefault(
+    public com.google.protobuf.Any getPropsOrDefault(
         java.lang.String key,
-        java.lang.String defaultValue) {
+        com.google.protobuf.Any defaultValue) {
       if (key == null) { throw new java.lang.NullPointerException(); }
-      java.util.Map<java.lang.String, java.lang.String> map =
+      java.util.Map<java.lang.String, com.google.protobuf.Any> map =
           internalGetProps().getMap();
       return map.containsKey(key) ? map.get(key) : defaultValue;
     }
     /**
-     * <code>map&lt;string, string&gt; props = 3;</code>
+     * <code>map&lt;string, .google.protobuf.Any&gt; props = 3;</code>
      */
 
-    public java.lang.String getPropsOrThrow(
+    public com.google.protobuf.Any getPropsOrThrow(
         java.lang.String key) {
       if (key == null) { throw new java.lang.NullPointerException(); }
-      java.util.Map<java.lang.String, java.lang.String> map =
+      java.util.Map<java.lang.String, com.google.protobuf.Any> map =
           internalGetProps().getMap();
       if (!map.containsKey(key)) {
         throw new java.lang.IllegalArgumentException();
@@ -829,7 +829,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>map&lt;string, string&gt; props = 3;</code>
+     * <code>map&lt;string, .google.protobuf.Any&gt; props = 3;</code>
      */
 
     public Builder removeProps(
@@ -843,16 +843,16 @@ private static final long serialVersionUID = 0L;
      * Use alternate mutation accessors instead.
      */
     @java.lang.Deprecated
-    public java.util.Map<java.lang.String, java.lang.String>
+    public java.util.Map<java.lang.String, com.google.protobuf.Any>
     getMutableProps() {
       return internalGetMutableProps().getMutableMap();
     }
     /**
-     * <code>map&lt;string, string&gt; props = 3;</code>
+     * <code>map&lt;string, .google.protobuf.Any&gt; props = 3;</code>
      */
     public Builder putProps(
         java.lang.String key,
-        java.lang.String value) {
+        com.google.protobuf.Any value) {
       if (key == null) { throw new java.lang.NullPointerException(); }
       if (value == null) { throw new java.lang.NullPointerException(); }
       internalGetMutableProps().getMutableMap()
@@ -860,11 +860,11 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>map&lt;string, string&gt; props = 3;</code>
+     * <code>map&lt;string, .google.protobuf.Any&gt; props = 3;</code>
      */
 
     public Builder putAllProps(
-        java.util.Map<java.lang.String, java.lang.String> values) {
+        java.util.Map<java.lang.String, com.google.protobuf.Any> values) {
       internalGetMutableProps().getMutableMap()
           .putAll(values);
       return this;

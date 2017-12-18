@@ -18,11 +18,11 @@ public interface PersonOrBuilder extends
       getIdBytes();
 
   /**
-   * <code>map&lt;string, string&gt; props = 2;</code>
+   * <code>map&lt;string, .google.protobuf.Any&gt; props = 2;</code>
    */
   int getPropsCount();
   /**
-   * <code>map&lt;string, string&gt; props = 2;</code>
+   * <code>map&lt;string, .google.protobuf.Any&gt; props = 2;</code>
    */
   boolean containsProps(
       java.lang.String key);
@@ -30,24 +30,24 @@ public interface PersonOrBuilder extends
    * Use {@link #getPropsMap()} instead.
    */
   @java.lang.Deprecated
-  java.util.Map<java.lang.String, java.lang.String>
+  java.util.Map<java.lang.String, com.google.protobuf.Any>
   getProps();
   /**
-   * <code>map&lt;string, string&gt; props = 2;</code>
+   * <code>map&lt;string, .google.protobuf.Any&gt; props = 2;</code>
    */
-  java.util.Map<java.lang.String, java.lang.String>
+  java.util.Map<java.lang.String, com.google.protobuf.Any>
   getPropsMap();
   /**
-   * <code>map&lt;string, string&gt; props = 2;</code>
+   * <code>map&lt;string, .google.protobuf.Any&gt; props = 2;</code>
    */
 
-  java.lang.String getPropsOrDefault(
+  com.google.protobuf.Any getPropsOrDefault(
       java.lang.String key,
-      java.lang.String defaultValue);
+      com.google.protobuf.Any defaultValue);
   /**
-   * <code>map&lt;string, string&gt; props = 2;</code>
+   * <code>map&lt;string, .google.protobuf.Any&gt; props = 2;</code>
    */
 
-  java.lang.String getPropsOrThrow(
+  com.google.protobuf.Any getPropsOrThrow(
       java.lang.String key);
 }

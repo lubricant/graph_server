@@ -1,11 +1,17 @@
 package com.soga.social.service;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.google.protobuf.Any;
 import com.soga.social.service.SocialGraphServiceGrpc.SocialGraphServiceBlockingStub;
 
 import io.grpc.ManagedChannel;
 import io.grpc.netty.NettyChannelBuilder;
 
-public class SocialServiceClient {
+public class SocialServiceClient implements Closeable {
 	
 	public static SocialServiceClientBuilder newClient() {
 		return new SocialServiceClientBuilder();
@@ -18,6 +24,11 @@ public class SocialServiceClient {
 				forAddress(config.host, config.port).
 				usePlaintext(true).
 				build();
+	}
+	
+	public void close() throws IOException {
+		if (! channel.isShutdown())
+			channel.shutdown();
 	}
 	
 	private SocialGraphServiceBlockingStub stub() {
@@ -40,7 +51,9 @@ public class SocialServiceClient {
 		return stub().disconnectPerson(ConnectionKey.newBuilder().setSrc(userA).setDst(userB).build());
 	}
 
-	public Result updatePerson(String userId) {
+	public Result updatePerson(String userId, Map<String, Object> propMap) {
+		Map<String, Any> props = new HashMap<>();
+		/*props.put("", Any.pack(""));*/
 		return stub().updatePerson(Person.newBuilder().setId(userId).build());
 	}
 	
@@ -48,8 +61,13 @@ public class SocialServiceClient {
 		return stub().updateConnection(Connection.newBuilder().setSrc(userA).setDst(userB).build());
 	}
 	
-	public TraversalTree traverseGraph(String root, int depth, long token) {
-		return stub().traverseGraph(TraversalDesc.newBuilder().setRoot(root).setDepth(depth).setToken(token).build());
+	public TraversalTree traverseGraphOnce(String root, int depth) {
+		return stub().traverseGraph(TraversalDesc.newBuilder().setRoot(root).setDepth(depth).setOneshot(true).build());
 	}
 	
+	public TraversalTree traverseGraph(String root, int depth, Long ticket) {
+		return stub().traverseGraph(TraversalDesc.newBuilder().setRoot(root).setDepth(depth).setOneshot(false).
+				setTicket(ticket == null ? -1: ticket).build());
+	}
+
 }

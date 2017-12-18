@@ -23,7 +23,12 @@ public interface TraversalDescOrBuilder extends
   int getDepth();
 
   /**
-   * <code>int64 token = 3;</code>
+   * <code>int64 ticket = 3;</code>
    */
-  long getToken();
+  long getTicket();
+
+  /**
+   * <code>bool oneshot = 4;</code>
+   */
+  boolean getOneshot();
 }

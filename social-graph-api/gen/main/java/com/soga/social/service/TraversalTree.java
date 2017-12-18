@@ -16,7 +16,7 @@ private static final long serialVersionUID = 0L;
     super(builder);
   }
   private TraversalTree() {
-    token_ = 0L;
+    ticket_ = 0L;
   }
 
   @java.lang.Override
@@ -52,7 +52,7 @@ private static final long serialVersionUID = 0L;
           }
           case 8: {
 
-            token_ = input.readInt64();
+            ticket_ = input.readInt64();
             break;
           }
           case 18: {
@@ -92,13 +92,13 @@ private static final long serialVersionUID = 0L;
             com.soga.social.service.TraversalTree.class, com.soga.social.service.TraversalTree.Builder.class);
   }
 
-  public static final int TOKEN_FIELD_NUMBER = 1;
-  private long token_;
+  public static final int TICKET_FIELD_NUMBER = 1;
+  private long ticket_;
   /**
-   * <code>int64 token = 1;</code>
+   * <code>int64 ticket = 1;</code>
    */
-  public long getToken() {
-    return token_;
+  public long getTicket() {
+    return ticket_;
   }
 
   public static final int ROOT_FIELD_NUMBER = 2;
@@ -134,8 +134,8 @@ private static final long serialVersionUID = 0L;
 
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (token_ != 0L) {
-      output.writeInt64(1, token_);
+    if (ticket_ != 0L) {
+      output.writeInt64(1, ticket_);
     }
     if (root_ != null) {
       output.writeMessage(2, getRoot());
@@ -148,9 +148,9 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (token_ != 0L) {
+    if (ticket_ != 0L) {
       size += com.google.protobuf.CodedOutputStream
-        .computeInt64Size(1, token_);
+        .computeInt64Size(1, ticket_);
     }
     if (root_ != null) {
       size += com.google.protobuf.CodedOutputStream
@@ -172,8 +172,8 @@ private static final long serialVersionUID = 0L;
     com.soga.social.service.TraversalTree other = (com.soga.social.service.TraversalTree) obj;
 
     boolean result = true;
-    result = result && (getToken()
-        == other.getToken());
+    result = result && (getTicket()
+        == other.getTicket());
     result = result && (hasRoot() == other.hasRoot());
     if (hasRoot()) {
       result = result && getRoot()
@@ -190,9 +190,9 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
-    hash = (37 * hash) + TOKEN_FIELD_NUMBER;
+    hash = (37 * hash) + TICKET_FIELD_NUMBER;
     hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-        getToken());
+        getTicket());
     if (hasRoot()) {
       hash = (37 * hash) + ROOT_FIELD_NUMBER;
       hash = (53 * hash) + getRoot().hashCode();
@@ -326,7 +326,7 @@ private static final long serialVersionUID = 0L;
     }
     public Builder clear() {
       super.clear();
-      token_ = 0L;
+      ticket_ = 0L;
 
       if (rootBuilder_ == null) {
         root_ = null;
@@ -356,7 +356,7 @@ private static final long serialVersionUID = 0L;
 
     public com.soga.social.service.TraversalTree buildPartial() {
       com.soga.social.service.TraversalTree result = new com.soga.social.service.TraversalTree(this);
-      result.token_ = token_;
+      result.ticket_ = ticket_;
       if (rootBuilder_ == null) {
         result.root_ = root_;
       } else {
@@ -403,8 +403,8 @@ private static final long serialVersionUID = 0L;
 
     public Builder mergeFrom(com.soga.social.service.TraversalTree other) {
       if (other == com.soga.social.service.TraversalTree.getDefaultInstance()) return this;
-      if (other.getToken() != 0L) {
-        setToken(other.getToken());
+      if (other.getTicket() != 0L) {
+        setTicket(other.getTicket());
       }
       if (other.hasRoot()) {
         mergeRoot(other.getRoot());
@@ -436,28 +436,28 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
-    private long token_ ;
+    private long ticket_ ;
     /**
-     * <code>int64 token = 1;</code>
+     * <code>int64 ticket = 1;</code>
      */
-    public long getToken() {
-      return token_;
+    public long getTicket() {
+      return ticket_;
     }
     /**
-     * <code>int64 token = 1;</code>
+     * <code>int64 ticket = 1;</code>
      */
-    public Builder setToken(long value) {
+    public Builder setTicket(long value) {
       
-      token_ = value;
+      ticket_ = value;
       onChanged();
       return this;
     }
     /**
-     * <code>int64 token = 1;</code>
+     * <code>int64 ticket = 1;</code>
      */
-    public Builder clearToken() {
+    public Builder clearTicket() {
       
-      token_ = 0L;
+      ticket_ = 0L;
       onChanged();
       return this;
     }
