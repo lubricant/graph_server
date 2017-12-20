@@ -2,11 +2,9 @@ package com.soga.social.service;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
-import com.google.protobuf.Any;
 import com.soga.social.service.SocialGraphServiceGrpc.SocialGraphServiceBlockingStub;
+import com.soga.social.service.data.Properties;
 
 import io.grpc.ManagedChannel;
 import io.grpc.netty.NettyChannelBuilder;
@@ -51,22 +49,28 @@ public class SocialServiceClient implements Closeable {
 		return stub().disconnectPerson(ConnectionKey.newBuilder().setSrc(userA).setDst(userB).build());
 	}
 
-	public Result updatePerson(String userId, Map<String, Object> propMap) {
-		Map<String, Any> props = new HashMap<>();
-		/*props.put("", Any.pack(""));*/
-		return stub().updatePerson(Person.newBuilder().setId(userId).build());
+	public Result updatePerson(String userId, Properties userProps) {
+		if (userProps == null || userProps.getProps().isEmpty()) {
+			throw new IllegalArgumentException("Properties is empty.");
+		}
+		return stub().updatePerson(
+				Person.newBuilder().setId(userId).putAllProps(userProps.getProps()).build());
 	}
 	
-	public Result updateConnection(String userA, String userB) {
-		return stub().updateConnection(Connection.newBuilder().setSrc(userA).setDst(userB).build());
+	public Result updateConnection(String userA, String userB, Properties connProps) {
+		if (connProps == null || connProps.getProps().isEmpty()) {
+			throw new IllegalArgumentException("Properties is empty.");
+		}
+		return stub().updateConnection(
+				Connection.newBuilder().setSrc(userA).setDst(userB).putAllProps(connProps.getProps()).build());
 	}
 	
 	public TraversalTree traverseGraphOnce(String root, int depth) {
 		return stub().traverseGraph(TraversalDesc.newBuilder().setRoot(root).setDepth(depth).setOneshot(true).build());
 	}
 	
-	public TraversalTree traverseGraph(String root, int depth, Long ticket) {
-		return stub().traverseGraph(TraversalDesc.newBuilder().setRoot(root).setDepth(depth).setOneshot(false).
+	public TraversalTree traverseGraph(String root, Long ticket) {
+		return stub().traverseGraph(TraversalDesc.newBuilder().setRoot(root).setDepth(1).setOneshot(false).
 				setTicket(ticket == null ? -1: ticket).build());
 	}
 

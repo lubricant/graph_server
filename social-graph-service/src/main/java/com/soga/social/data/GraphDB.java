@@ -3,7 +3,7 @@ package com.soga.social.data;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Streams;
 import com.soga.social.config.ConfigLoader;
 import com.soga.social.config.Neo4jConfig;
+import com.soga.social.data.SessionDB.Session;
 import com.soga.social.data.model.ConnEdge;
 import com.soga.social.data.model.GraphLabels;
 import com.soga.social.data.model.GraphRelations;
@@ -181,23 +182,12 @@ public class GraphDB implements Closeable {
 			if (node == null) 
 				return;
 			
-			Map<String, Object> props = person.getProps();
-			node.removeProperty("");
-			node.setProperty("", null);
-			node.hasProperty("");
-			
-			final long nodeId = node.getId();
-			final Object nodePid = node.getProperty("pid");
-			
-			Streams.stream(node.getRelationships(GraphRelations.CONNECTION)).map( r -> {
-				Object otherPid = (r.getStartNodeId() == nodeId ? r.getEndNode(): r.getStartNode()).getProperty("pid");
-				ConnEdge conn = ConnEdge.of(nodePid, otherPid, r.getAllProperties());
-				r.delete();
-				return conn;
-			});
-			
-			person.setProps(node.getAllProperties());
-			node.delete();
+			for (Entry<String,Object> prop: person.getProps().entrySet()) {
+				if (prop.getValue() != null)
+					node.setProperty(prop.getKey(), prop.getValue());
+				else
+					node.removeProperty(prop.getKey());
+			}
 			
 			tx.success();
 		}
@@ -217,15 +207,18 @@ public class GraphDB implements Closeable {
 			Relationship relation = 
 					Streams.stream(srcNode.getRelationships(GraphRelations.CONNECTION)).filter(equals).findFirst().orElse(null);
 			
-			if (relation != null) {
-				conn.setProps(relation.getAllProperties());
+			for (Entry<String,Object> prop: conn.getProps().entrySet()) {
+				if (prop.getValue() != null)
+					relation.setProperty(prop.getKey(), prop.getValue());
+				else
+					relation.removeProperty(prop.getKey());
 			}
 			
 			tx.success();
 		}
 	}
 	
-	public void traverse() {
+	public void traverse(String personId, Session visitSess) {
 		
 	}
 	

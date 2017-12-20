@@ -9,6 +9,8 @@ import com.google.protobuf.DoubleValue;
 import com.google.protobuf.FloatValue;
 import com.google.protobuf.Int32Value;
 import com.google.protobuf.Int64Value;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Message;
 import com.google.protobuf.StringValue;
 
 import proto.type.BoolList;
@@ -22,8 +24,32 @@ import proto.type.StringList;
 
 public class Properties {
 
-	public static final Object NULL = new Object();
-	private Map<String, Any> propsMap = new HashMap<>();
+	private Map<String, Any> propsMap;
+	
+	public Properties() {
+		this(new HashMap<>());
+	}
+	
+	public Properties(Map<String, Any> propsMap) {
+		if (propsMap == null)
+			throw new NullPointerException();
+		this.propsMap = propsMap;
+	}
+	
+	public Map<String, Any> getProps() {
+		return propsMap;
+	}
+	
+	public <T extends Message> T get(String key, Class<T> clazz) {
+		Any any = propsMap.get(key);
+		if (any == null || any.is(Null.class))
+			return null;
+		try {
+			return any.unpack(clazz);
+		} catch (InvalidProtocolBufferException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
 	
 	public void remove(String key) {
 		propsMap.put(key, Any.pack(Null.getDefaultInstance()));
@@ -92,11 +118,40 @@ public class Properties {
 	}
 	
 	public BoolValue getBool(String key) {
-		return null;
+		return get(key, BoolValue.class);
 	}
-	
 	public Int32Value getInt(String key) {
-		return null;
+		return get(key, Int32Value.class);
+	}
+	public Int64Value getLong(String key) {
+		return get(key, Int64Value.class);
+	}
+	public FloatValue getFloat(String key) {
+		return get(key, FloatValue.class);
+	}
+	public DoubleValue getDouble(String key) {
+		return get(key, DoubleValue.class);
+	}
+	public StringValue getString(String key) {
+		return get(key, StringValue.class);
 	}
 	
+	public BoolList getBoolList(String key) {
+		return get(key, BoolList.class);
+	}
+	public IntList getInt32List(String key) {
+		return get(key, IntList.class);
+	}
+	public LongList getInt64List(String key) {
+		return get(key, LongList.class);
+	}
+	public FloatList getFloatList(String key) {
+		return get(key, FloatList.class);
+	}
+	public DoubleList getDoubleList(String key) {
+		return get(key, DoubleList.class);
+	}
+	public StringList getStringList(String key) {
+		return get(key, StringList.class);
+	}
 }
