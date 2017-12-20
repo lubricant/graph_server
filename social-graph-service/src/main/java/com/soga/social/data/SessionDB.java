@@ -11,11 +11,11 @@ import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 
 import com.soga.social.config.RocksdbConfig;
+import com.soga.social.data.sess.SessionFactory;
 
 public class SessionDB implements Closeable {
 
 	public static interface Session {
-		long id();
 		void visit(long nodeId);
 		boolean notVisited(long nodeId);
 	}
@@ -32,6 +32,7 @@ public class SessionDB implements Closeable {
 	}
 
     private RocksDB dbInstance;
+    private SessionFactory<Session> sessFactory;
 	
     public SessionDB(RocksdbConfig config) throws Exception {
     	Options opts = new Options();

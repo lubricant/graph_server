@@ -11,22 +11,40 @@ import com.soga.social.data.SessionDB.Session;
 
 public class BloomSession implements SessionDB.Session {
 	
-	private BloomFilter<Long> bloomFilter;
+	private final BloomFilter<Long> bloomFilter;
+	
+	private BloomSession(BloomFilter<Long> filter) {
+		bloomFilter = filter;
+	}
+
+	@Override
+	public void visit(long nodeId) {
+		bloomFilter.put(nodeId);
+	}
+
+	@Override
+	public boolean notVisited(long nodeId) {
+		return !bloomFilter.mightContain(nodeId);
+	}
 	
 	static class BloomSessionFactory extends SessionFactory<BloomSession> {
+
+		Session initialize() {
+			return new BloomSession(
+					BloomFilter.create(Funnels.longFunnel(), 500));
+		}
 		
 		Session deserialize(final byte[] data) {
 			try {
-				BloomFilter<Long> filter = BloomFilter.readFrom(new InputStream() {
+				return new BloomSession(BloomFilter.readFrom(new InputStream() {
 					int i = 0;
 					public int read() throws IOException {
 						return i >= data.length ? -1: Byte.toUnsignedInt(data[i++]); 
 					}
-				}, Funnels.longFunnel());
+				}, Funnels.longFunnel()));
 			} catch (IOException e) {
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
-			return null;
 		}
 
 		byte[] serialize(Session sess) {
@@ -42,40 +60,9 @@ public class BloomSession implements SessionDB.Session {
 			}
 			throw new IllegalArgumentException("Expect a bloom session.");
 		}
+
 	}
 	
-	public static void main(String[] args) throws IOException {
-		BloomFilter<Long> filter = BloomFilter.create(Funnels.longFunnel(), 1);
-		
-		filter.put(1L);
-		
-		filter.put(988L);
-		
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		filter.writeTo(stream);
-		byte[] bytes = stream.toByteArray();
-		
-		BloomFilter<Long> filterB = BloomFilter.readFrom(new InputStream() {
-			int i = 0;
-			public int read() throws IOException {
-				return i >= bytes.length ? -1: Byte.toUnsignedInt(bytes[i++]); 
-			}
-		}, Funnels.longFunnel());
-		
-	}
 
-	@Override
-	public long id() {
-		return 0;
-	}
-
-	@Override
-	public void visit(long nodeId) {
-	}
-
-	@Override
-	public boolean notVisited(long nodeId) {
-		return false;
-	}
 	
 }
