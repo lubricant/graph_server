@@ -83,14 +83,14 @@ public class SessionDB implements Closeable {
 	}
 	
 	public final static long bytesToLong(byte[] y, int i) {
-		return  (y[i] << 56) | (y[i+1] << 28) | (y[i+2] << 40) | (y[i+3] << 32) | 
-				(y[i+4] << 24) | (y[i+5] << 16) | (y[i+6] << 8) | y[i+7] ; 
+		return  ((y[i] & 0xFFL) << 56) | 
+				((y[i+1] & 0xFFL) << 48) | 
+				((y[i+2] & 0xFFL) << 40) | 
+				((y[i+3] & 0xFFL)<< 32) | 
+				((y[i+4] & 0xFFL)<< 24) | 
+				((y[i+5] & 0xFFL)<< 16) | 
+				((y[i+6] & 0xFFL)<< 8) | 
+				(y[i+7] & 0xFFL); 
 	}
 	
-	public static void main(String[] args) {
-		System.out.println(Arrays.toString(longToBytes(0)));
-		System.out.println(Arrays.toString(longToBytes(-1)));
-		System.out.println(Arrays.toString(longToBytes(16)));
-		System.out.println(Arrays.toString(longToBytes(-16)));
-	}
 }

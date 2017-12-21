@@ -11,7 +11,7 @@ public class ArraySession implements SessionDB.Session {
 	long[] oldArray = null;
 	LongArray newArray = new LongArray(16);
 	
-	ArraySession() {}
+	ArraySession() {} 
 	
 	ArraySession(byte[] data) {
 		
@@ -22,6 +22,7 @@ public class ArraySession implements SessionDB.Session {
 		for (int i=0; i<oldArray.length; i++) {
 			oldArray[i] = SessionDB.bytesToLong(data, i << 3);
 		}
+		Arrays.sort(oldArray);
 	}
 	
 	@Override
@@ -32,7 +33,7 @@ public class ArraySession implements SessionDB.Session {
 	@Override
 	public boolean notVisited(long nodeId) {
 		for (int i=0; i<newArray.size(); i++) {
-			if (newArray.get(i) == nodeId)
+			if (newArray.array[i] == nodeId)
 				return true;
 		}
 		
@@ -82,11 +83,54 @@ public class ArraySession implements SessionDB.Session {
 		}
 		
 	}
+	
+	public static void main(String[] args) {
+		ArraySession sess = new ArraySession();
+		for (int i=0; i<100; i++) {
+			sess.visit(-i);
+		}
+		
+		System.out.println(sess.newArray);
+		byte[] data = sess.toBytes();
+		System.out.println(data.length);
+		
+		sess = new ArraySession(data);
+		for (int i=100; i<150; i++) {
+			sess.visit(i);
+		}
+		
+		System.out.println(Arrays.toString(sess.oldArray));
+		System.out.println(sess.newArray);
+		
+		data = sess.toBytes();
+		System.out.println(data.length);
+		
+		sess = new ArraySession(data);
+		System.out.println(Arrays.toString(sess.oldArray));
+		
+		for (int i=-200; i<-100; i++) {
+			System.out.print(sess.notVisited(i) + " ");
+			
+		}System.out.println();
+		for (int i=-100; i<0; i++) {
+			System.out.print(sess.notVisited(i) + " ");
+			
+		}System.out.println();
+		for (int i=0; i<100; i++) {
+			System.out.print(sess.notVisited(i) + " ");
+			
+		}System.out.println();
+		for (int i=100; i<200; i++) {
+			System.out.print(sess.notVisited(i) + " ");
+			
+		}System.out.println();
+	}
+	
 }
 
 
 /**
- * see {@link ImmutableLongArray#Builder}:
+ * see {@link ImmutableLongArray#Builder}
  */
 class LongArray {
 	
