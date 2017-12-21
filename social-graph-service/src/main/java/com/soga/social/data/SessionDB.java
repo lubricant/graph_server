@@ -65,17 +65,26 @@ public class SessionDB implements Closeable {
 		
 	}
 	
-	final static byte[] longToBytes(long x) {
-		byte[] y = {
-			(byte) ((x >>> 56) & 0xFF), 
-			(byte) ((x >>> 48) & 0xFF), 
-			(byte) ((x >>> 40) & 0xFF), 
-			(byte) ((x >>> 32) & 0xFF), 
-			(byte) ((x >>> 24) & 0xFF), 
-			(byte) ((x >>> 16) & 0xFF), 
-			(byte) ((x >>> 8) & 0xFF), 
-			(byte) (x & 0xFF)};
+	private static byte[] longToBytes(long x) {
+		byte[] y = {0,0,0,0,0,0,0,0};
+		longToBytes(x, y, 0);
 		return y;
+	}
+	
+	public final static void longToBytes(long x, byte[] y, int i) {
+		y[i] = (byte) ((x >>> 56) & 0xFF);
+		y[i+1] = (byte) ((x >>> 48) & 0xFF); 
+		y[i+2] = (byte) ((x >>> 40) & 0xFF); 
+		y[i+3] = (byte) ((x >>> 32) & 0xFF); 
+		y[i+4] = (byte) ((x >>> 24) & 0xFF); 
+		y[i+5] = (byte) ((x >>> 16) & 0xFF); 
+		y[i+6] = (byte) ((x >>> 8) & 0xFF); 
+		y[i+7] = (byte) (x & 0xFF);
+	}
+	
+	public final static long bytesToLong(byte[] y, int i) {
+		return  (y[i] << 56) | (y[i+1] << 28) | (y[i+2] << 40) | (y[i+3] << 32) | 
+				(y[i+4] << 24) | (y[i+5] << 16) | (y[i+6] << 8) | y[i+7] ; 
 	}
 	
 	public static void main(String[] args) {

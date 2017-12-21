@@ -4,19 +4,24 @@ import java.util.Arrays;
 
 import com.google.common.primitives.ImmutableLongArray;
 import com.soga.social.data.SessionDB;
+import com.soga.social.data.SessionDB.Session;
 
 public class ArraySession implements SessionDB.Session {
 
-	LongArray oldArray = null, newArray;
+	long[] oldArray = null;
+	LongArray newArray = new LongArray(16);
 	
-	ArraySession() {
-		newArray = new LongArray(16);
-	}
+	ArraySession() {}
 	
-	ArraySession(long[] oldVal) {
-		newArray = new LongArray(16);
-		oldArray = new LongArray(oldVal);
-		oldArray.sort();
+	ArraySession(byte[] data) {
+		
+		if (data.length % 8 != 0) 
+			throw new IllegalArgumentException("Not a valid long array data.");
+		
+		oldArray = new long[data.length / 8];
+		for (int i=0; i<oldArray.length; i++) {
+			oldArray[i] = SessionDB.bytesToLong(data, i << 3);
+		}
 	}
 	
 	@Override
@@ -30,38 +35,52 @@ public class ArraySession implements SessionDB.Session {
 			if (newArray.get(i) == nodeId)
 				return true;
 		}
-		return (oldArray == null) ? false: oldArray.biSearch(nodeId);
+		
+		return (oldArray == null) ? false: 
+			Arrays.binarySearch(oldArray, nodeId) >= 0;
 	}
 
-	public long[] mergeArray() {
-		if (oldArray == null)
-			return newArray.copy();
+	public byte[] toBytes() {
 		
-		newArray.sort();
+		long[] newArray = this.newArray.array;
+		int newLen = this.newArray.size(), oldLen = (oldArray==null)? 0: oldArray.length ;
 		
-		int oldIdx = 0, newIdx = 0, megIdx = 0;
-		int oldLen = oldArray.size(), newLen = newArray.size();
+		int megIdx = 0;
+		byte[] megData = new byte[(oldLen + newLen) * 8];
 		
-		long[] mergedArray = new long[oldLen + newLen];
-		while (oldIdx < oldLen && newIdx < newLen) {
-			long oldVal = oldArray.get(oldIdx);
-			long newVal = newArray.get(newIdx);
-			if (oldVal < newVal) {
-				mergedArray[megIdx++] = oldVal;
-				++oldIdx;
-			} else {
-				mergedArray[megIdx++] = newVal;
-				++newIdx;
+		while (newLen > 0) {
+			SessionDB.longToBytes(newArray[--newLen], megData, (megIdx++) << 3);
+		}
+		
+		while (oldLen > 0) {
+			SessionDB.longToBytes(oldArray[--oldLen], megData, (megIdx++) << 3);
+		}
+		
+		return megData;
+	}
+	
+	
+	static class ArraySessionFactory extends SessionFactory<ArraySession> {
+
+		@Override
+		Session initialize() {
+			return new ArraySession();
+		}
+
+		@Override
+		Session deserialize(byte[] data) {
+			return new ArraySession(data);
+		}
+
+		@Override
+		byte[] serialize(Session sess) {
+			if (sess instanceof ArraySession) {
+				ArraySession session = (ArraySession) sess;
+				return session.toBytes();
 			}
+			throw new IllegalArgumentException("Expect a array session.");
 		}
 		
-		while (oldIdx < oldLen) {
-			mergedArray[megIdx++] = oldArray.get(oldIdx++);
-		}
-		while (newIdx < newLen) {
-			mergedArray[megIdx++] = newArray.get(newIdx++);
-		}
-		return mergedArray;
 	}
 }
 
@@ -71,7 +90,7 @@ public class ArraySession implements SessionDB.Session {
  */
 class LongArray {
 	
-	private long[] array;
+	long[] array;
 	private int count = 0; // <= array.length
 
 	LongArray(long[] array) {
@@ -119,16 +138,11 @@ class LongArray {
 		count += values.length;
 	}
 
-	public long[] copy() {
-		return Arrays.copyOf(array, count);
-	}
-	
-	public void sort() {
-		Arrays.sort(array, 0, count);
-	}
-	
-	public boolean biSearch(long key) {
-		return Arrays.binarySearch(array, 0, count, key) >= 0;
+	public int copyTo(long[] target, int offset) {
+		if (target.length - offset < count)
+			throw new IndexOutOfBoundsException("Not enouth space to receive data.");
+		System.arraycopy(array, 0, target, offset, count);
+		return offset + count;
 	}
 	
 	private void ensureRoomFor(int numberToAdd) {
