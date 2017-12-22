@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.soga.social.config.ConfigLoader;
-import com.soga.social.config.GrpcConfig;
+import com.soga.social.config.RpcConfig;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -21,7 +21,7 @@ public final class SocialGraphServer {
 		
 		try {
 			
-			GrpcConfig config = ConfigLoader.getGrpcConfig();
+			RpcConfig config = ConfigLoader.getRpcConfig();
 			
 			serverInstance = ServerBuilder.forPort(config.getPort()).
 					addService(new SocialGraphServiceImp()).

@@ -61,20 +61,20 @@ public class ArraySession implements SessionDB.Session {
 	}
 	
 	
-	static class ArraySessionFactory extends SessionFactory<ArraySession> {
+	static class ArraySessionFactory extends SessionFactory {
 
 		@Override
-		Session initialize() {
+		public Session initialize() {
 			return new ArraySession();
 		}
 
-		@Override
+		public @Override
 		Session deserialize(byte[] data) {
 			return new ArraySession(data);
 		}
 
 		@Override
-		byte[] serialize(Session sess) {
+		public byte[] serialize(Session sess) {
 			if (sess instanceof ArraySession) {
 				ArraySession session = (ArraySession) sess;
 				return session.toBytes();
@@ -82,48 +82,6 @@ public class ArraySession implements SessionDB.Session {
 			throw new IllegalArgumentException("Expect a array session.");
 		}
 		
-	}
-	
-	public static void main(String[] args) {
-		ArraySession sess = new ArraySession();
-		for (int i=0; i<100; i++) {
-			sess.visit(-i);
-		}
-		
-		System.out.println(sess.newArray);
-		byte[] data = sess.toBytes();
-		System.out.println(data.length);
-		
-		sess = new ArraySession(data);
-		for (int i=100; i<150; i++) {
-			sess.visit(i);
-		}
-		
-		System.out.println(Arrays.toString(sess.oldArray));
-		System.out.println(sess.newArray);
-		
-		data = sess.toBytes();
-		System.out.println(data.length);
-		
-		sess = new ArraySession(data);
-		System.out.println(Arrays.toString(sess.oldArray));
-		
-		for (int i=-200; i<-100; i++) {
-			System.out.print(sess.notVisited(i) + " ");
-			
-		}System.out.println();
-		for (int i=-100; i<0; i++) {
-			System.out.print(sess.notVisited(i) + " ");
-			
-		}System.out.println();
-		for (int i=0; i<100; i++) {
-			System.out.print(sess.notVisited(i) + " ");
-			
-		}System.out.println();
-		for (int i=100; i<200; i++) {
-			System.out.print(sess.notVisited(i) + " ");
-			
-		}System.out.println();
 	}
 	
 }

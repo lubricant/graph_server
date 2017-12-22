@@ -27,14 +27,14 @@ public class BloomSession implements SessionDB.Session {
 		return !bloomFilter.mightContain(nodeId);
 	}
 	
-	static class BloomSessionFactory extends SessionFactory<BloomSession> {
+	static class BloomSessionFactory extends SessionFactory {
 
-		Session initialize() {
+		public Session initialize() {
 			return new BloomSession(
 					BloomFilter.create(Funnels.longFunnel(), 500));
 		}
 		
-		Session deserialize(final byte[] data) {
+		public Session deserialize(final byte[] data) {
 			try {
 				return new BloomSession(BloomFilter.readFrom(new InputStream() {
 					int i = 0;
@@ -47,7 +47,7 @@ public class BloomSession implements SessionDB.Session {
 			}
 		}
 
-		byte[] serialize(Session sess) {
+		public byte[] serialize(Session sess) {
 			if (sess instanceof BloomSession) {
 				BloomSession session = (BloomSession) sess;
 				ByteArrayOutputStream stream = new ByteArrayOutputStream();

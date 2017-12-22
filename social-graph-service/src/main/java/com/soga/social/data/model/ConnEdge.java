@@ -2,18 +2,22 @@ package com.soga.social.data.model;
 
 import java.util.Map;
 
+import org.neo4j.graphdb.Relationship;
+
 public class ConnEdge {
 	
 	private String src;
 	private String dst;
 	private Map<String,Object> props;
 	
-	public static ConnEdge of(Object src, Object dst, Map<String, Object> props) {
-		ConnEdge edge = new ConnEdge();
-		edge.src = String.valueOf(src);
-		edge.dst = String.valueOf(dst);
-		edge.props = props;
-		return edge;
+	public static ConnEdge of(
+			Object src, Object dst, Relationship edge) {
+		
+		ConnEdge conn = new ConnEdge();
+		conn.src = String.valueOf(src);
+		conn.dst = String.valueOf(dst);
+		conn.props = edge.getAllProperties();
+		return conn;
 	}
 	
 	public String getSrc() {

@@ -13,23 +13,32 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Path;
+import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.schema.ConstraintType;
 import org.neo4j.graphdb.schema.IndexCreator;
 import org.neo4j.graphdb.schema.Schema;
+import org.neo4j.graphdb.traversal.Evaluation;
+import org.neo4j.graphdb.traversal.Evaluator;
+import org.neo4j.graphdb.traversal.TraversalBranch;
+import org.neo4j.graphdb.traversal.TraversalDescription;
+import org.neo4j.graphdb.traversal.UniquenessFactory;
+import org.neo4j.graphdb.traversal.UniquenessFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Streams;
 import com.soga.social.config.ConfigLoader;
-import com.soga.social.config.Neo4jConfig;
+import com.soga.social.config.GraphConfig;
 import com.soga.social.data.SessionDB.Session;
 import com.soga.social.data.model.ConnEdge;
 import com.soga.social.data.model.GraphLabels;
 import com.soga.social.data.model.GraphRelations;
 import com.soga.social.data.model.PersonNode;
+import com.soga.social.data.model.TraverPath;
 
 public class GraphDB implements Closeable {
 
@@ -37,7 +46,10 @@ public class GraphDB implements Closeable {
 	
 	private GraphDatabaseService dbInstance;
 	
-	public GraphDB(Neo4jConfig config) throws Exception {
+	public GraphDB() throws Exception {
+		
+		GraphConfig config = ConfigLoader.getGraphConfig();
+		
 		dbInstance = new GraphDatabaseFactory().
                 newEmbeddedDatabase(Paths.get(config.getStoreDir()).toFile());
 		
@@ -142,7 +154,7 @@ public class GraphDB implements Closeable {
 			
 			Streams.stream(node.getRelationships(GraphRelations.CONNECTION)).map( r -> {
 				Object otherPid = (r.getStartNodeId() == nodeId ? r.getEndNode(): r.getStartNode()).getProperty("pid");
-				ConnEdge conn = ConnEdge.of(nodePid, otherPid, r.getAllProperties());
+				ConnEdge conn = ConnEdge.of(nodePid, otherPid, r);
 				r.delete();
 				return conn;
 			});
@@ -218,11 +230,87 @@ public class GraphDB implements Closeable {
 		}
 	}
 	
-	public void traverse(String personId, Session visitSess) {
+	public TraverPath traverse(String personId, final int depth, final Session session) {
 		
+		if (depth < 1 || depth > 6) {
+			throw new IllegalArgumentException("Depth should be between 1 and 6.");
+		}
+		
+		UniquenessFactory sessUniq = new UniquenessFactory() {
+			public boolean eagerStartBranches() {
+				return true;
+			}
+			public UniquenessFilter create(Object optParam) {
+				return new UniquenessFilter() {
+					public boolean checkFirst(TraversalBranch branch) {
+						return session.notVisited(branch.startNode().getId());
+					}
+					public boolean check(TraversalBranch branch) {
+						return session.notVisited(branch.endNode().getId());
+					}
+				};
+			}
+		};
+		
+		Evaluator sessEval = new Evaluator() {
+			public Evaluation evaluate(Path path) {
+				
+				long nodeId = path.endNode().getId();
+				boolean notVisited = session.notVisited(nodeId);
+				
+				if (notVisited) session.visit(nodeId);
+				
+				return Evaluation.of(notVisited, 
+						(path.length() - 1) >= depth);
+			}
+		};
+		
+		
+		try (Transaction tx = dbInstance.beginTx()) {
+			Node root = dbInstance.findNode(GraphLabels.PERSON, "pid", personId);
+			if (root == null) {
+				throw new IllegalArgumentException("Person with %s is not existed.");
+			}
+			
+			TraversalDescription traversal = dbInstance.traversalDescription().
+				relationships(GraphRelations.CONNECTION).
+				evaluator(sessEval).
+				uniqueness(sessUniq).
+				depthFirst();
+			
+			TraverPath origin = TraverPath.of(root.getId(), PersonNode.of(root));
+			for (Path path: traversal.traverse(root)) {
+				
+				TraverPath parent = null;
+				Relationship relation = null;
+				
+				for (PropertyContainer pc: path) {
+					if (parent == null) {
+						parent = origin;
+					} else {
+						if (relation == null) {
+							relation = (Relationship) pc;
+							
+						} else {
+							Node node = (Node) pc;
+							TraverPath next = parent.getBranches().get(node.getId());
+							
+							if (next == null) {
+								parent.getBranches().put(node.getId(), next = 
+										TraverPath.of(node.getId(), PersonNode.of(node)));
+								next.getEdges().add(
+										ConnEdge.of(parent.getNode().getPid(), next.getNode().getPid(), relation));
+ 							}
+							
+							relation = null;
+						}
+					}
+				}
+			}
+			
+			tx.success();
+			return origin;
+		}
 	}
 	
-	public static void main(String[] args) throws Exception {
-		new GraphDB(ConfigLoader.getNeo4jConfig()).close();
-	}
 }

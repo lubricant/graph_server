@@ -106,15 +106,15 @@ public class ConfigLoader {
 	}
 	
 
-	public static GrpcConfig getGrpcConfig() {
-		return new GrpcConfig();
+	public static RpcConfig getRpcConfig() {
+		return new RpcConfig();
 	}
 	
-	public static Neo4jConfig getNeo4jConfig() {
-		return new Neo4jConfig();
+	public static GraphConfig getGraphConfig() { 
+		return new GraphConfig();
 	}
 	
-	public static RocksdbConfig getRocksdbConfig() {
-		return new RocksdbConfig();
+	public static SessionConfig getSessionConfig() {
+		return new SessionConfig();
 	}
 }

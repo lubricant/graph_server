@@ -2,10 +2,19 @@ package com.soga.social.data.sess;
 
 import com.soga.social.data.SessionDB.Session;
 
-public abstract class SessionFactory<T extends Session> {
+public abstract class SessionFactory {
 	
-	abstract Session initialize();
-	abstract Session deserialize(byte[] data);
-	abstract byte[] serialize(Session sess);
+	public abstract Session initialize();
+	public abstract Session deserialize(byte[] data);
+	public abstract byte[] serialize(Session sess);
+	
+	
+	public static SessionFactory useArraySession() {
+		return new ArraySession.ArraySessionFactory();
+	}
+	
+	public static SessionFactory useBloomSession() {
+		return new BloomSession.BloomSessionFactory();
+	}
 	
 }

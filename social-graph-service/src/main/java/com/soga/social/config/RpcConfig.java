@@ -2,13 +2,15 @@ package com.soga.social.config;
 
 import com.typesafe.config.Config;
 
-public class GrpcConfig {
+public class RpcConfig {
+	
+	private static final String RPC_CONFIG = "rpc";
 	
 	private final int port;
 	
-	GrpcConfig() {
+	RpcConfig() {
 		Config rootConfig = ConfigLoader.configInstance;
-		Config grpcConfig = rootConfig.getConfig("grpc");
+		Config grpcConfig = rootConfig.getConfig(RPC_CONFIG);
 		
 		port = grpcConfig.getInt("port");
 	}

@@ -2,15 +2,16 @@ package com.soga.social.data;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.rocksdb.CompressionType;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
+import org.rocksdb.WriteOptions;
 
-import com.soga.social.config.RocksdbConfig;
+import com.soga.social.config.ConfigLoader;
+import com.soga.social.config.SessionConfig;
 import com.soga.social.data.sess.SessionFactory;
 
 public class SessionDB implements Closeable {
@@ -27,18 +28,26 @@ public class SessionDB implements Closeable {
 	private final static AtomicLong ticketSeq = 
 			new AtomicLong();
 	
-	public static long newTicket() {
+	public static long acquireTicket() {
 		return ticketSeq.incrementAndGet();
 	}
 
     private RocksDB dbInstance;
-    private SessionFactory<Session> sessFactory;
+    private SessionFactory sessFactory;
 	
-    public SessionDB(RocksdbConfig config) throws Exception {
+    public SessionDB() throws Exception {
+    	
+    	SessionConfig config = ConfigLoader.getSessionConfig();
+    	
     	Options opts = new Options();
     	opts.setCreateIfMissing(true);
     	opts.setDbLogDir(config.getLogDir());
     	opts.setCompressionType(CompressionType.SNAPPY_COMPRESSION);
+    	
+    	if (config.isUseBloom())
+    		sessFactory = SessionFactory.useBloomSession();
+    	else
+    		sessFactory = SessionFactory.useArraySession();
     	
     	dbInstance = RocksDB.open(opts, config.getStoreDir());
     }
@@ -50,19 +59,21 @@ public class SessionDB implements Closeable {
 		}
 	}
 	
-	public Session acquireSess() {
-		return null; 
-	}
-	
 	public Session restoreSess(long ticket) throws RocksDBException {
 		byte[] key = longToBytes(ticket);
-		dbInstance.get(key);
-		dbInstance.put(key, null);
-		return null; 
+		byte[] value = dbInstance.get(key);
+		if (value == null)
+			return sessFactory.initialize(); 
+		else
+			return sessFactory.deserialize(value); 
 	}
 	
-	public void storeSess(long ticket, Session sess) {
-		
+	public void storeSess(long ticket, Session sess) throws RocksDBException {
+		byte[] key = longToBytes(ticket);
+		byte[] value = sessFactory.serialize(sess);
+		try (WriteOptions opts = new WriteOptions()) {
+			dbInstance.put(opts.setDisableWAL(true), key, value);
+		}
 	}
 	
 	private static byte[] longToBytes(long x) {
