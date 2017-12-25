@@ -1,5 +1,8 @@
 package com.soga.social.service;
 
+import java.io.Closeable;
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,44 +19,56 @@ public final class SocialGraphServer {
 	private final static Logger logger = LoggerFactory.getLogger(SocialGraphServer.class);
 	
 	private static Server serverInstance;
+	private static Closeable resource;
 	
-	public static void start() {
+	public static void start(boolean blocked) {
 		
 		try {
 			
 			RpcConfig config = ConfigLoader.getRpcConfig();
+			SocialGraphServiceImp service = new SocialGraphServiceImp();
 			
-			serverInstance = ServerBuilder.forPort(config.getPort()).
-					addService(new SocialGraphServiceImp()).
-					build();
-			
+			resource = service;
+			serverInstance = ServerBuilder.forPort(config.getPort()).addService(service).build();
 			serverInstance.start();
 			
 		} catch (Exception e) {
 			logger.error("Server fail to start.", e);
-			if (serverInstance != null && !serverInstance.isShutdown()) {
-				serverInstance.shutdownNow();	
-			}
+			shutdown(false);
 			return;
 		}
 		
 		try {
 			logger.info("Server has started successfully.");
-			serverInstance.awaitTermination();
+			if (blocked)
+				serverInstance.awaitTermination();
 		} catch (InterruptedException e) {
 			logger.error("Server is interrupted.", e);
 		}
 	}
 	
-	public static void shutdown() {
+	public static void shutdown(boolean gracefully) {
 		logger.warn("Server is shutting down.");
-		if (serverInstance != null) {
-			serverInstance.shutdown();
+		
+		if (resource != null) {
+			try (Closeable r = resource) {
+			} catch (IOException ex) {
+				logger.error("Resource fail to close.", ex);
+			} 
+			resource = null;
+		}
+
+		if (serverInstance != null && !serverInstance.isShutdown()) {
+			if (! gracefully)
+				serverInstance.shutdownNow();	
+			else
+				serverInstance.shutdown();
+			serverInstance = null;
 		}
 	}
 	
 	public static void main(String[] args) {
-		Runtime.getRuntime().addShutdownHook(new Thread(SocialGraphServer::shutdown));
-		SocialGraphServer.start();
+		Runtime.getRuntime().addShutdownHook(new Thread(()->SocialGraphServer.shutdown(true)));
+		SocialGraphServer.start(true);
 	}
 }

@@ -193,11 +193,12 @@ public class GraphDB implements Closeable {
 				return null;
 			}
 			
-			conn.setProps(relation.getAllProperties());
-			
 			List<PersonNode> result = new ArrayList<>();
 			result.add(PersonNode.of(srcNode));
 			result.add(PersonNode.of(dstNode));
+			
+			conn.setProps(relation.getAllProperties());
+			relation.delete();
 			
 			tx.success();
 			return result;

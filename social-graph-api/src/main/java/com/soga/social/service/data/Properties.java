@@ -20,7 +20,6 @@ import proto.type.DoubleList;
 import proto.type.FloatList;
 import proto.type.IntList;
 import proto.type.LongList;
-import proto.type.Null;
 import proto.type.StringList;
 
 
@@ -54,7 +53,7 @@ public class Properties {
 				props.remove(key);
 			} else {
 				Class<?> clazz = val.getClass();
-				if (clazz.isArray()) {
+				if (! clazz.isArray()) {
 					if (clazz == String.class) {
 						props.setString(key, (String) val);
 					} else if (clazz == Boolean.class) {
@@ -105,7 +104,7 @@ public class Properties {
 			String key = prop.getKey();
 			Any val = prop.getValue();
 			
-			if (val == null || val.is(Null.class)) {
+			if (val == null || val.getTypeUrl().isEmpty()) {
 				allPropsMap.put(key, null);
 			} else {
 				if (val.is(StringValue.class))
@@ -163,7 +162,7 @@ public class Properties {
 	
 	public <T extends Message> T get(String key, Class<T> clazz) {
 		Any any = propsMap.get(key);
-		if (any == null || any.is(Null.class))
+		if (any == null || any.getTypeUrl().isEmpty())
 			return null;
 		try {
 			return any.unpack(clazz);
@@ -173,7 +172,7 @@ public class Properties {
 	}
 	
 	public void remove(String key) {
-		propsMap.put(key, Any.pack(Null.getDefaultInstance()));
+		propsMap.put(key, Any.getDefaultInstance());
 	}
 	
 	public Properties setBool(String key, boolean val) {

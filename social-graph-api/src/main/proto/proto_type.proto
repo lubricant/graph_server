@@ -4,8 +4,6 @@ option java_package = "proto.type";
 option java_outer_classname = "ProtoType";
 option java_multiple_files = true;
 
-message Null {}
-
 message BoolList {
 	repeated bool value = 1;
 }

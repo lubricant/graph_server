@@ -3,6 +3,9 @@ package com.soga.social.service;
 import java.io.Closeable;
 import java.io.IOException;
 
+import com.google.protobuf.Any;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Message;
 import com.soga.social.service.SocialGraphServiceGrpc.SocialGraphServiceBlockingStub;
 import com.soga.social.service.data.Properties;
 
@@ -39,6 +42,13 @@ public class SocialServiceClient implements Closeable {
 		}
 	}
 	
+	private <T extends Message> T unpack(Result res, Class<T> type) throws InvalidProtocolBufferException {
+		Any data = res.getData();
+		if (data.getTypeUrl().isEmpty())
+			return null;
+		return data.unpack(type);
+	}
+	
 	public boolean createPerson(String userId) throws Exception {
 		Result result = stub().createPerson(PersonKey.newBuilder().setId(userId).build());
 		check(result);
@@ -48,7 +58,7 @@ public class SocialServiceClient implements Closeable {
 	public PersonConn removePerson(String userId) throws Exception {
 		Result result = stub().removePerson(PersonKey.newBuilder().setId(userId).build());
 		check(result);
-		return result.getData().unpack(PersonConn.class);
+		return unpack(result, PersonConn.class);
 	}
 	
 	public boolean connectPerson(String userA, String userB) throws Exception {
@@ -60,7 +70,7 @@ public class SocialServiceClient implements Closeable {
 	public ConnPerson disconnectPerson(String userA, String userB) throws Exception {
 		Result result = stub().disconnectPerson(ConnectionKey.newBuilder().setSrc(userA).setDst(userB).build());
 		check(result);
-		return result.getData().unpack(ConnPerson.class);
+		return unpack(result, ConnPerson.class);
 	}
 
 	public boolean updatePerson(String userId, Properties userProps) throws Exception {
@@ -84,16 +94,24 @@ public class SocialServiceClient implements Closeable {
 	}
 	
 	public TraversalTree traverseGraphOnce(String root, int depth, boolean connected) throws Exception {
-		Result result = stub().traverseGraph(TraversalDesc.newBuilder().setRoot(root).setDepth(depth).setOneshot(true).build());
+		Result result = stub().traverseGraph(TraversalDesc.newBuilder().
+				setRoot(root).
+				setDepth(depth).
+				setConnected(connected).
+				setOneshot(true).build());
 		check(result);
-		return result.getData().unpack(TraversalTree.class);
+		return unpack(result, TraversalTree.class);
 	}
 	
 	public TraversalTree traverseGraph(String root, Long ticket, boolean connected) throws Exception {
-		Result result = stub().traverseGraph(TraversalDesc.newBuilder().setRoot(root).setDepth(1).setOneshot(false).
-				setTicket(ticket == null ? -1: ticket).build());
+		Result result = stub().traverseGraph(TraversalDesc.newBuilder().
+				setRoot(root).
+				setDepth(1).
+				setConnected(connected).
+				setTicket(ticket == null ? -1: ticket).
+				setOneshot(false).build());
 		check(result);
-		return result.getData().unpack(TraversalTree.class);
+		return unpack(result, TraversalTree.class);
 	}
 
 }
