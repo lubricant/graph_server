@@ -1,7 +1,9 @@
 package com.soga.social.service.data;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.BoolValue;
@@ -30,14 +32,133 @@ public class Properties {
 		this(new HashMap<>());
 	}
 	
-	public Properties(Map<String, Any> propsMap) {
+	private Properties(Map<String, Any> propsMap) {
+		this.propsMap = propsMap;
+	}
+	
+	public static Properties wrap(Map<String, Any> propsMap) {
 		if (propsMap == null)
 			throw new NullPointerException();
-		this.propsMap = propsMap;
+		return new Properties(propsMap);
+	}
+	
+	public static Properties parse(Map<String, Object> propsMap) {
+		if (propsMap == null)
+			throw new NullPointerException();
+		
+		Properties props = new Properties();
+		for (Entry<String, Object> prop: propsMap.entrySet()) {
+			String key = prop.getKey();
+			Object val = prop.getValue();
+			if (val == null) {
+				props.remove(key);
+			} else {
+				Class<?> clazz = val.getClass();
+				if (clazz.isArray()) {
+					if (clazz == String.class) {
+						props.setString(key, (String) val);
+					} else if (clazz == Boolean.class) {
+						props.setBool(key, (Boolean) val);
+					} else if (clazz == Integer.class) {
+						props.setInt(key, (Integer) val);
+					} else if (clazz == Long.class) {
+						props.setLong(key, (Long) val);
+					} else if (clazz == Float.class) {
+						props.setFloat(key, (Float) val);
+					} else if (clazz == Double.class) {
+						props.setDouble(key, (Double) val);
+					} else {
+						throw new IllegalArgumentException(
+								String.format("Property with key '%s' is not a basic value.", key));
+					}
+				} else {
+					if (clazz == String[].class) {
+						props.setStringList(key, (String[]) val);
+					} else if (clazz == boolean[].class) {
+						props.setBoolList(key, (boolean[]) val);
+					} else if (clazz == int[].class) {
+						props.setIntList(key, (int[]) val);
+					} else if (clazz == long[].class) {
+						props.setLongList(key, (long[]) val);
+					} else if (clazz == float[].class) {
+						props.setFloatList(key, (float[]) val);
+					} else if (clazz == double[].class) {
+						props.setDoubleList(key, (double[]) val);
+					} else {
+						throw new IllegalArgumentException(
+								String.format("Property with key '%s' is not a basic value.", key));
+					}
+				}
+			}
+		}
+		
+		return props;
 	}
 	
 	public Map<String, Any> getProps() {
 		return propsMap;
+	}
+	
+	public Map<String, Object> getAllProps() throws Exception {
+		Map<String, Object> allPropsMap = new HashMap<>(propsMap.size());
+		for (Entry<String, Any> prop: propsMap.entrySet()) {
+			String key = prop.getKey();
+			Any val = prop.getValue();
+			
+			if (val == null || val.is(Null.class)) {
+				allPropsMap.put(key, null);
+			} else {
+				if (val.is(StringValue.class))
+					allPropsMap.put(key, val.unpack(StringValue.class).getValue());
+				else if (val.is(BoolValue.class))
+					allPropsMap.put(key, val.unpack(BoolValue.class).getValue());
+				else if (val.is(Int32Value.class))
+					allPropsMap.put(key, val.unpack(Int32Value.class).getValue());
+				else if (val.is(Int64Value.class))
+					allPropsMap.put(key, val.unpack(Int64Value.class).getValue());
+				else if (val.is(FloatValue.class))
+					allPropsMap.put(key, val.unpack(FloatValue.class).getValue());
+				else if (val.is(DoubleValue.class))
+					allPropsMap.put(key, val.unpack(DoubleValue.class).getValue());
+				else if (val.is(StringList.class)) {
+					allPropsMap.put(key, val.unpack(StringList.class).getValueList().toArray());
+				} else if (val.is(BoolList.class)) {
+					List<Boolean> list = val.unpack(BoolList.class).getValueList();
+					boolean[] array = new boolean[list.size()];
+					for (int i=0; i<list.size(); i++)
+						array[i] = list.get(i);
+					allPropsMap.put(key, array);
+				} else if (val.is(IntList.class)) {
+					List<Integer> list = val.unpack(IntList.class).getValueList();
+					int[] array = new int[list.size()];
+					for (int i=0; i<list.size(); i++)
+						array[i] = list.get(i);
+					allPropsMap.put(key, array);
+				} else if (val.is(LongList.class)) {
+					List<Long> list = val.unpack(LongList.class).getValueList();
+					long[] array = new long[list.size()];
+					for (int i=0; i<list.size(); i++)
+						array[i] = list.get(i);
+					allPropsMap.put(key, array);
+				} else if (val.is(FloatList.class)) {
+					List<Float> list = val.unpack(FloatList.class).getValueList();
+					float[] array = new float[list.size()];
+					for (int i=0; i<list.size(); i++)
+						array[i] = list.get(i);
+					allPropsMap.put(key, array);
+				} else if (val.is(DoubleList.class)) {
+					List<Double> list = val.unpack(DoubleList.class).getValueList();
+					double[] array = new double[list.size()];
+					for (int i=0; i<list.size(); i++)
+						array[i] = list.get(i);
+					allPropsMap.put(key, array);
+				} else {
+					throw new IllegalArgumentException(
+							String.format("Property with key '%s' is not a basic value.", key));
+				}
+			}
+		}
+		return allPropsMap;
 	}
 	
 	public <T extends Message> T get(String key, Class<T> clazz) {

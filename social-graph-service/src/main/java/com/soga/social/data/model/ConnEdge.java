@@ -11,12 +11,29 @@ public class ConnEdge {
 	private Map<String,Object> props;
 	
 	public static ConnEdge of(
+			Object src, Object dst) {
+		ConnEdge conn = new ConnEdge();
+		conn.src = String.valueOf(src);
+		conn.dst = String.valueOf(dst);
+		return conn;
+	}
+	
+	public static ConnEdge of(
 			Object src, Object dst, Relationship edge) {
 		
 		ConnEdge conn = new ConnEdge();
 		conn.src = String.valueOf(src);
 		conn.dst = String.valueOf(dst);
 		conn.props = edge.getAllProperties();
+		return conn;
+	}
+	
+	public static ConnEdge of(
+			String src, String dst, Map<String,Object> props) {
+		ConnEdge conn = new ConnEdge();
+		conn.src = String.valueOf(src);
+		conn.dst = String.valueOf(dst);
+		conn.props = props;
 		return conn;
 	}
 	

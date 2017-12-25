@@ -3,6 +3,9 @@ package com.soga.social.data;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -23,8 +26,10 @@ import org.neo4j.graphdb.schema.IndexCreator;
 import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.graphdb.traversal.Evaluation;
 import org.neo4j.graphdb.traversal.Evaluator;
+import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.graphdb.traversal.TraversalBranch;
 import org.neo4j.graphdb.traversal.TraversalDescription;
+import org.neo4j.graphdb.traversal.Uniqueness;
 import org.neo4j.graphdb.traversal.UniquenessFactory;
 import org.neo4j.graphdb.traversal.UniquenessFilter;
 import org.slf4j.Logger;
@@ -109,19 +114,20 @@ public class GraphDB implements Closeable {
 		}
 	}
 	
-	public void createPerson(PersonNode person) {
+	public boolean createPerson(PersonNode person) {
 		try (Transaction tx = dbInstance.beginTx()) {
 			
 			if (dbInstance.findNode(GraphLabels.PERSON, "pid", person.getPid()) != null)
-				return;
+				return false;
 			
 			Node node = dbInstance.createNode(GraphLabels.PERSON);
 			node.setProperty("pid", person.getPid());
 			tx.success();
+			return true;
 		}
 	}
 	
-	public void createConnection(ConnEdge conn) {
+	public boolean createConnection(ConnEdge conn) {
 		try (Transaction tx = dbInstance.beginTx()) {
 			Node srcNode = dbInstance.findNode(GraphLabels.PERSON, "pid", conn.getSrc());
 			Node dstNode = dbInstance.findNode(GraphLabels.PERSON, "pid", conn.getDst());
@@ -140,33 +146,83 @@ public class GraphDB implements Closeable {
 			}
 			
 			tx.success();
+			return !exist;
 		}
 	}
 	
-	public void removePerson(PersonNode person) {
+	public List<ConnEdge> removePerson(PersonNode person) {
 		try (Transaction tx = dbInstance.beginTx()) {
 			Node node = dbInstance.findNode(GraphLabels.PERSON, "pid", person.getPid());
 			if (node == null) 
-				return;
+				return null;
+			
+			Map<String,Object> props = node.getAllProperties();
 			
 			final long nodeId = node.getId();
-			final Object nodePid = node.getProperty("pid");
+			final Object nodePid = props.remove("pid");
 			
-			Streams.stream(node.getRelationships(GraphRelations.CONNECTION)).map( r -> {
-				Object otherPid = (r.getStartNodeId() == nodeId ? r.getEndNode(): r.getStartNode()).getProperty("pid");
-				ConnEdge conn = ConnEdge.of(nodePid, otherPid, r);
-				r.delete();
-				return conn;
-			});
+			List<ConnEdge> result = new ArrayList<>();
+			for (Relationship relation: node.getRelationships(GraphRelations.CONNECTION)) {
+				Object otherPid = (relation.getStartNodeId() == nodeId ? relation.getEndNode(): relation.getStartNode()).getProperty("pid");
+				result.add(ConnEdge.of(nodePid, otherPid, relation));
+				relation.delete();
+			}
 			
-			person.setProps(node.getAllProperties());
+			person.setProps(props);
 			node.delete();
-			
 			tx.success();
+			return result;
 		}
 	}
 	
-	public void removeConnection(ConnEdge conn) {
+	public List<PersonNode> removeConnection(ConnEdge conn) {
+		try (Transaction tx = dbInstance.beginTx()) {
+			
+			Node srcNode = dbInstance.findNode(GraphLabels.PERSON, "pid", conn.getSrc());
+			Node dstNode = dbInstance.findNode(GraphLabels.PERSON, "pid", conn.getDst());
+			
+			final long srcId = srcNode.getId(), dstId = dstNode.getId();
+			Predicate<Relationship> equals = r -> 
+			(r.getStartNodeId() == srcId && r.getEndNodeId() == dstId) ||
+			(r.getStartNodeId() == dstId && r.getEndNodeId() == srcId);
+			
+			Relationship relation = 
+					Streams.stream(srcNode.getRelationships(GraphRelations.CONNECTION)).filter(equals).findFirst().orElse(null);
+			
+			if (relation == null) {
+				return null;
+			}
+			
+			conn.setProps(relation.getAllProperties());
+			
+			List<PersonNode> result = new ArrayList<>();
+			result.add(PersonNode.of(srcNode));
+			result.add(PersonNode.of(dstNode));
+			
+			tx.success();
+			return result;
+		}
+	}
+	
+	public boolean updatePerson(PersonNode person) {
+		try (Transaction tx = dbInstance.beginTx()) {
+			Node node = dbInstance.findNode(GraphLabels.PERSON, "pid", person.getPid());
+			if (node == null) 
+				return false;
+			
+			for (Entry<String,Object> prop: person.getProps().entrySet()) {
+				if (prop.getValue() != null)
+					node.setProperty(prop.getKey(), prop.getValue());
+				else
+					node.removeProperty(prop.getKey());
+			}
+			
+			tx.success();
+			return true;
+		}
+	}
+	
+	public boolean updateConnection(ConnEdge conn) {
 		try (Transaction tx = dbInstance.beginTx()) {
 			
 			Node srcNode = dbInstance.findNode(GraphLabels.PERSON, "pid", conn.getSrc());
@@ -181,62 +237,35 @@ public class GraphDB implements Closeable {
 					Streams.stream(srcNode.getRelationships(GraphRelations.CONNECTION)).filter(equals).findFirst().orElse(null);
 			
 			if (relation != null) {
-				conn.setProps(relation.getAllProperties());
+				for (Entry<String,Object> prop: conn.getProps().entrySet()) {
+					if (prop.getValue() != null)
+						relation.setProperty(prop.getKey(), prop.getValue());
+					else
+						relation.removeProperty(prop.getKey());
+				}
 			}
 			
 			tx.success();
+			return relation != null;
 		}
 	}
 	
-	public void updatePerson(PersonNode person) {
-		try (Transaction tx = dbInstance.beginTx()) {
-			Node node = dbInstance.findNode(GraphLabels.PERSON, "pid", person.getPid());
-			if (node == null) 
-				return;
-			
-			for (Entry<String,Object> prop: person.getProps().entrySet()) {
-				if (prop.getValue() != null)
-					node.setProperty(prop.getKey(), prop.getValue());
-				else
-					node.removeProperty(prop.getKey());
-			}
-			
-			tx.success();
-		}
-	}
-	
-	public void updateConnection(ConnEdge conn) {
-		try (Transaction tx = dbInstance.beginTx()) {
-			
-			Node srcNode = dbInstance.findNode(GraphLabels.PERSON, "pid", conn.getSrc());
-			Node dstNode = dbInstance.findNode(GraphLabels.PERSON, "pid", conn.getDst());
-			
-			final long srcId = srcNode.getId(), dstId = dstNode.getId();
-			Predicate<Relationship> equals = r -> 
-			(r.getStartNodeId() == srcId && r.getEndNodeId() == dstId) ||
-			(r.getStartNodeId() == dstId && r.getEndNodeId() == srcId);
-			
-			Relationship relation = 
-					Streams.stream(srcNode.getRelationships(GraphRelations.CONNECTION)).filter(equals).findFirst().orElse(null);
-			
-			for (Entry<String,Object> prop: conn.getProps().entrySet()) {
-				if (prop.getValue() != null)
-					relation.setProperty(prop.getKey(), prop.getValue());
-				else
-					relation.removeProperty(prop.getKey());
-			}
-			
-			tx.success();
-		}
-	}
-	
-	public TraverPath traverse(String personId, final int depth, final Session session) {
+	public TraverPath traverse(String personId, boolean connected, int depth) {
 		
-		if (depth < 1 || depth > 6) {
-			throw new IllegalArgumentException("Depth should be between 1 and 6.");
+		if (depth < 0 || depth > 6) {
+			throw new IllegalArgumentException("Depth should be between 0 and 6.");
 		}
 		
-		UniquenessFactory sessUniq = new UniquenessFactory() {
+		return traverse(personId, connected, depth, null, Uniqueness.NODE_GLOBAL, Evaluators.atDepth(depth));
+	}
+	
+	public TraverPath traverse(String personId, boolean connected, final int depth, final Session session) {
+		
+		if (depth < 0 || depth > 6) {
+			throw new IllegalArgumentException("Depth should be between 0 and 6.");
+		}
+		
+		UniquenessFactory uniqueness = new UniquenessFactory() {
 			public boolean eagerStartBranches() {
 				return true;
 			}
@@ -252,7 +281,7 @@ public class GraphDB implements Closeable {
 			}
 		};
 		
-		Evaluator sessEval = new Evaluator() {
+		Evaluator evaluator = new Evaluator() {
 			public Evaluation evaluate(Path path) {
 				
 				long nodeId = path.endNode().getId();
@@ -265,46 +294,60 @@ public class GraphDB implements Closeable {
 			}
 		};
 		
+		return traverse(personId, connected, depth, session, uniqueness, evaluator);
+	}
+
+	private TraverPath traverse(String pid, boolean connected, int depth, Session session, 
+			UniquenessFactory uniqueness, Evaluator evaluator) {
 		
 		try (Transaction tx = dbInstance.beginTx()) {
-			Node root = dbInstance.findNode(GraphLabels.PERSON, "pid", personId);
+			Node root = dbInstance.findNode(GraphLabels.PERSON, "pid", pid);
 			if (root == null) {
-				throw new IllegalArgumentException("Person with %s is not existed.");
+				return null;
+			}
+			
+			TraverPath origin = TraverPath.of(root.getId(), PersonNode.of(root));
+			if (depth == 0) {
+				return origin;
 			}
 			
 			TraversalDescription traversal = dbInstance.traversalDescription().
 				relationships(GraphRelations.CONNECTION).
-				evaluator(sessEval).
-				uniqueness(sessUniq).
+				evaluator(evaluator).
+				uniqueness(uniqueness).
 				depthFirst();
 			
-			TraverPath origin = TraverPath.of(root.getId(), PersonNode.of(root));
 			for (Path path: traversal.traverse(root)) {
 				
 				TraverPath parent = null;
 				Relationship relation = null;
 				
-				for (PropertyContainer pc: path) {
+				for (PropertyContainer entity: path) {
 					if (parent == null) {
+						if (((Node)entity).getId() != root.getId())
+							throw new IllegalStateException("Path is not start with root.");
 						parent = origin;
-					} else {
-						if (relation == null) {
-							relation = (Relationship) pc;
-							
-						} else {
-							Node node = (Node) pc;
-							TraverPath next = parent.getBranches().get(node.getId());
-							
-							if (next == null) {
-								parent.getBranches().put(node.getId(), next = 
-										TraverPath.of(node.getId(), PersonNode.of(node)));
-								next.getEdges().add(
-										ConnEdge.of(parent.getNode().getPid(), next.getNode().getPid(), relation));
- 							}
-							
-							relation = null;
+						continue;
+					} 
+					
+					if (relation == null) {
+						relation = (Relationship) entity;
+						continue;
+					}
+					
+					Node node = (Node) entity;
+					TraverPath next = parent.getBranches().get(node.getId());
+					
+					if (next == null) {
+						parent.getBranches().put(node.getId(), next = 
+							TraverPath.of(node.getId(), PersonNode.of(node)));
+						
+						if (connected) {
+							next.setEdge(ConnEdge.of(parent.getNode().getPid(), next.getNode().getPid(), relation));
 						}
 					}
+					
+					relation = null;
 				}
 			}
 			
@@ -313,4 +356,18 @@ public class GraphDB implements Closeable {
 		}
 	}
 	
+//	private void fetchConnection(Node node, List<ConnEdge> edges, Session sess) {
+//		for (Relationship relation: node.getRelationships(GraphRelations.CONNECTION)) {
+//			Node other = null;
+//			if (node.getId() != relation.getStartNodeId()) {
+//				other = relation.getStartNode();
+//			} 
+//			if (node.getId() != relation.getEndNodeId()) {
+//				other = relation.getEndNode();
+//			}
+//			if (sess == null || sess.notVisited(other.getId())) {
+//				ConnEdge.of(node.getProperty("pid"), other.getProperty("pid"), relation);
+//			}
+//		}
+//	}
 }

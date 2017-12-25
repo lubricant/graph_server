@@ -32,46 +32,68 @@ public class SocialServiceClient implements Closeable {
 	private SocialGraphServiceBlockingStub stub() {
 		return SocialGraphServiceGrpc.newBlockingStub(channel);
 	}
-	
-	public Result createPerson(String userId) {
-		return stub().createPerson(PersonKey.newBuilder().setId(userId).build());
+
+	private void check(Result res) throws Exception {
+		if (res.getState() == Result.Status.FAILURE) {
+			throw new Exception(res.getHint());
+		}
 	}
 	
-	public PersonConn removePerson(String userId) {
-		return stub().removePerson(PersonKey.newBuilder().setId(userId).build());
+	public boolean createPerson(String userId) throws Exception {
+		Result result = stub().createPerson(PersonKey.newBuilder().setId(userId).build());
+		check(result);
+		return result.getState() == Result.Status.SUCCESS;
 	}
 	
-	public Result connectPerson(String userA, String userB) {
-		return stub().connectPerson(ConnectionKey.newBuilder().setSrc(userA).setDst(userB).build());
+	public PersonConn removePerson(String userId) throws Exception {
+		Result result = stub().removePerson(PersonKey.newBuilder().setId(userId).build());
+		check(result);
+		return result.getData().unpack(PersonConn.class);
+	}
+	
+	public boolean connectPerson(String userA, String userB) throws Exception {
+		Result result = stub().connectPerson(ConnectionKey.newBuilder().setSrc(userA).setDst(userB).build());
+		check(result);
+		return result.getState() == Result.Status.SUCCESS;
 	}
 
-	public ConnPerson disconnectPerson(String userA, String userB) {
-		return stub().disconnectPerson(ConnectionKey.newBuilder().setSrc(userA).setDst(userB).build());
+	public ConnPerson disconnectPerson(String userA, String userB) throws Exception {
+		Result result = stub().disconnectPerson(ConnectionKey.newBuilder().setSrc(userA).setDst(userB).build());
+		check(result);
+		return result.getData().unpack(ConnPerson.class);
 	}
 
-	public Result updatePerson(String userId, Properties userProps) {
+	public boolean updatePerson(String userId, Properties userProps) throws Exception {
 		if (userProps == null || userProps.getProps().isEmpty()) {
 			throw new IllegalArgumentException("Properties is empty.");
 		}
-		return stub().updatePerson(
-				Person.newBuilder().setId(userId).putAllProps(userProps.getProps()).build());
+		Result result = stub().updatePerson(
+		Person.newBuilder().setId(userId).putAllProps(userProps.getProps()).build());
+		check(result);
+		return result.getState() == Result.Status.SUCCESS;
 	}
 	
-	public Result updateConnection(String userA, String userB, Properties connProps) {
+	public boolean updateConnection(String userA, String userB, Properties connProps) throws Exception {
 		if (connProps == null || connProps.getProps().isEmpty()) {
 			throw new IllegalArgumentException("Properties is empty.");
 		}
-		return stub().updateConnection(
-				Connection.newBuilder().setSrc(userA).setDst(userB).putAllProps(connProps.getProps()).build());
+		Result result = stub().updateConnection(
+		Connection.newBuilder().setSrc(userA).setDst(userB).putAllProps(connProps.getProps()).build());
+		check(result);
+		return result.getState() == Result.Status.SUCCESS;
 	}
 	
-	public TraversalTree traverseGraphOnce(String root, int depth) {
-		return stub().traverseGraph(TraversalDesc.newBuilder().setRoot(root).setDepth(depth).setOneshot(true).build());
+	public TraversalTree traverseGraphOnce(String root, int depth, boolean connected) throws Exception {
+		Result result = stub().traverseGraph(TraversalDesc.newBuilder().setRoot(root).setDepth(depth).setOneshot(true).build());
+		check(result);
+		return result.getData().unpack(TraversalTree.class);
 	}
 	
-	public TraversalTree traverseGraph(String root, Long ticket) {
-		return stub().traverseGraph(TraversalDesc.newBuilder().setRoot(root).setDepth(1).setOneshot(false).
+	public TraversalTree traverseGraph(String root, Long ticket, boolean connected) throws Exception {
+		Result result = stub().traverseGraph(TraversalDesc.newBuilder().setRoot(root).setDepth(1).setOneshot(false).
 				setTicket(ticket == null ? -1: ticket).build());
+		check(result);
+		return result.getData().unpack(TraversalTree.class);
 	}
 
 }

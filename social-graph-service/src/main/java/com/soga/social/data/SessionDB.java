@@ -29,7 +29,7 @@ public class SessionDB implements Closeable {
 			new AtomicLong();
 	
 	public static long acquireTicket() {
-		return ticketSeq.incrementAndGet();
+		return ticketSeq.incrementAndGet() & Long.MAX_VALUE;
 	}
 
     private RocksDB dbInstance;
@@ -42,7 +42,7 @@ public class SessionDB implements Closeable {
     	Options opts = new Options();
     	opts.setCreateIfMissing(true);
     	opts.setDbLogDir(config.getLogDir());
-    	opts.setCompressionType(CompressionType.SNAPPY_COMPRESSION);
+    	opts.setCompressionType(CompressionType.NO_COMPRESSION);
     	
     	if (config.isUseBloom())
     		sessFactory = SessionFactory.useBloomSession();

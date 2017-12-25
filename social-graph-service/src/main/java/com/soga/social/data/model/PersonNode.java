@@ -9,12 +9,25 @@ public class PersonNode {
 	private String pid;
 	private Map<String,Object> props;
 
+	public static PersonNode of(String pid) {
+		PersonNode person = new PersonNode(); 
+		person.pid = pid;
+		return person;
+	}
+	
 	public static PersonNode of(Node node) {
 		Map<String,Object> props = node.getAllProperties();
 		Object pid = props.remove("pid");
 		
 		PersonNode person = new PersonNode(); 
 		person.pid = String.valueOf(pid);
+		person.props= props;
+		return person;
+	}
+	
+	public static PersonNode of(String pid, Map<String,Object> props) {
+		PersonNode person = new PersonNode(); 
+		person.pid = pid;
 		person.props= props;
 		return person;
 	}

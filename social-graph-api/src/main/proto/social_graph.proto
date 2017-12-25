@@ -11,15 +11,15 @@ import "google/protobuf/any.proto";
 service SocialGraphService {
 	
 	rpc createPerson(PersonKey) returns (Result) {}
-	rpc removePerson(PersonKey) returns (PersonConn) {}
+	rpc removePerson(PersonKey) returns (Result) {} // data:PersonConn
 	
 	rpc connectPerson(ConnectionKey) returns (Result) {}
-	rpc disconnectPerson(ConnectionKey) returns (ConnPerson) {}
+	rpc disconnectPerson(ConnectionKey) returns (Result) {} // data:ConnPerson
 	
 	rpc updatePerson(Person) returns (Result) {}
 	rpc updateConnection(Connection) returns (Result) {}
 	
-	rpc traverseGraph(TraversalDesc) returns (TraversalTree) {}
+	rpc traverseGraph(TraversalDesc) returns (Result) {} // data:TraversalTree
 }
 
 message PersonKey {
@@ -48,8 +48,8 @@ message PersonConn {
 }
 
 message ConnPerson {
-	repeated Person person = 1;
-	Connection connections = 2;
+	repeated Person persons = 1;
+	Connection connection = 2;
 }
 
 message Result {
@@ -62,6 +62,7 @@ message Result {
 
 	Status state = 1;
 	string hint = 2;
+	google.protobuf.Any data = 3;
 }
 
 message TraversalDesc {
@@ -69,12 +70,13 @@ message TraversalDesc {
 	int32 depth = 2;
 	int64 ticket = 3;
 	bool oneshot = 4;
+	bool connected = 5;
 }
 
 message TraversalNode {
 	int32 depth = 1;
-	Person person = 2;
-	Connection connection = 3;
+	Person person = 2; 
+	Connection connection = 3; // connection to parent node
 	repeated TraversalNode adjoin = 4;
 }
 
