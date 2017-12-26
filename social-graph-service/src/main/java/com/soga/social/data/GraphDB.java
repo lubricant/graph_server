@@ -284,14 +284,15 @@ public class GraphDB implements Closeable {
 		
 		Evaluator evaluator = new Evaluator() {
 			public Evaluation evaluate(Path path) {
+				if (path.length() > depth) {
+					return Evaluation.EXCLUDE_AND_PRUNE;
+				}
 				
 				long nodeId = path.endNode().getId();
 				boolean notVisited = session.notVisited(nodeId);
 				
 				if (notVisited) session.visit(nodeId);
-				
-				return Evaluation.of(notVisited, 
-						(path.length() - 1) >= depth);
+				return Evaluation.of(notVisited, path.length() <= depth);
 			}
 		};
 		

@@ -58,6 +58,7 @@ implements Closeable {
 			boolean success = graphDB.createPerson(PersonNode.of(request.getId()));
 			response.onNext(done(success, null));
 		} catch (Exception ex) {
+			logger.error("Create person fail.", ex);
 			response.onNext(fail(ex));
 		} finally {
 			response.onCompleted();
@@ -89,6 +90,7 @@ implements Closeable {
 			}
 			
 		} catch (Exception ex) {
+			logger.error("Remove person fail.", ex);
 			response.onNext(fail(ex));
 		} finally {
 			response.onCompleted();
@@ -101,6 +103,7 @@ implements Closeable {
 					ConnEdge.of(request.getSrc(), request.getDst()));
 			response.onNext(done(success, null));
 		} catch (Exception ex) {
+			logger.error("Connect person fail.", ex);
 			response.onNext(fail(ex));
 		} finally {
 			response.onCompleted();
@@ -135,6 +138,7 @@ implements Closeable {
 			}
 			
 		} catch (Exception ex) {
+			logger.error("Disconnect person fail.", ex);
 			response.onNext(fail(ex));
 		} finally {
 			response.onCompleted();
@@ -147,6 +151,7 @@ implements Closeable {
 					Properties.wrap(request.getPropsMap()).getAllProps()));
 			response.onNext(done(success, null));
 		} catch (Exception ex) {
+			logger.error("Update person fail.", ex);
 			response.onNext(fail(ex));
 		} finally {
 			response.onCompleted();
@@ -160,6 +165,7 @@ implements Closeable {
 					Properties.wrap(request.getPropsMap()).getAllProps()));
 			response.onNext(done(success, null));
 		} catch (Exception ex) {
+			logger.error("Update connection fail.", ex);
 			response.onNext(fail(ex));
 		} finally {
 			response.onCompleted();
@@ -185,6 +191,7 @@ implements Closeable {
 	    	}
 	    	
 		} catch (Exception ex) {
+			logger.error("TraverseGraph fail.", ex);
 			response.onNext(fail(ex));
 		} finally {
 			response.onCompleted();

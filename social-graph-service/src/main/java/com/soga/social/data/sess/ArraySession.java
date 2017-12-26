@@ -34,11 +34,11 @@ public class ArraySession implements SessionDB.Session {
 	public boolean notVisited(long nodeId) {
 		for (int i=0; i<newArray.size(); i++) {
 			if (newArray.array[i] == nodeId)
-				return true;
+				return false;
 		}
 		
-		return (oldArray == null) ? false: 
-			Arrays.binarySearch(oldArray, nodeId) >= 0;
+		return (oldArray == null) ? true: 
+			Arrays.binarySearch(oldArray, nodeId) < 0;
 	}
 
 	public byte[] toBytes() {

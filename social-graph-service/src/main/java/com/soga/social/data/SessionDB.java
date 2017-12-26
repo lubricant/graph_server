@@ -2,13 +2,23 @@ package com.soga.social.data;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.lang3.Validate;
 import org.rocksdb.CompressionType;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 import org.rocksdb.WriteOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.soga.social.config.ConfigLoader;
 import com.soga.social.config.SessionConfig;
@@ -16,6 +26,8 @@ import com.soga.social.data.sess.SessionFactory;
 
 public class SessionDB implements Closeable {
 
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+	
 	public static interface Session {
 		void visit(long nodeId);
 		boolean notVisited(long nodeId);
@@ -38,6 +50,22 @@ public class SessionDB implements Closeable {
     public SessionDB() throws Exception {
     	
     	SessionConfig config = ConfigLoader.getSessionConfig();
+    	
+    	Path dir = Paths.get(config.getStoreDir());
+    	
+    	Validate.isTrue(!Files.exists(dir) || Files.isDirectory(dir), "Session directory is not a directory: %s", dir);
+    	Validate.isTrue(!Files.exists(dir) || Files.isWritable(dir), "Session directory is not writable: %s", dir);
+    	
+    	if (Files.exists(dir)) {
+    		logger.info("Cleaning session directory.");
+    		Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
+    		    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+    		    		throws IOException {
+    		    	Files.delete(file);
+    		        return FileVisitResult.CONTINUE;
+    		   }
+    		});
+    	}
     	
     	Options opts = new Options();
     	opts.setCreateIfMissing(true);
