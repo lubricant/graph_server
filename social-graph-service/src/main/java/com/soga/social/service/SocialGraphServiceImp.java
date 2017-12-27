@@ -55,8 +55,8 @@ implements Closeable {
 	
 	public void createPerson(PersonKey request, StreamObserver<Result> response) {
 		try {
-			boolean success = graphDB.createPerson(PersonNode.of(request.getId()));
-			response.onNext(done(success, null));
+			int code = graphDB.createPerson(PersonNode.of(request.getId()));
+			response.onNext(done(code == 1, null));
 		} catch (Exception ex) {
 			logger.error("Create person fail.", ex);
 			response.onNext(fail(ex));
@@ -99,9 +99,12 @@ implements Closeable {
 
     public void connectPerson(ConnectionKey request, StreamObserver<Result> response) {
 		try {
-			boolean success = graphDB.createConnection(
+			int code = graphDB.createConnection(
 					ConnEdge.of(request.getSrc(), request.getDst()));
-			response.onNext(done(success, null));
+			if (code == -1)
+				response.onNext(fail(new Exception("At least one person is not found.")));
+			else
+				response.onNext(done(code == 1, null));
 		} catch (Exception ex) {
 			logger.error("Connect person fail.", ex);
 			response.onNext(fail(ex));

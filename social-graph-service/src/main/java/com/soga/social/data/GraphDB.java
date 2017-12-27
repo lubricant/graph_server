@@ -114,23 +114,26 @@ public class GraphDB implements Closeable {
 		}
 	}
 	
-	public boolean createPerson(PersonNode person) {
+	public int createPerson(PersonNode person) {
 		try (Transaction tx = dbInstance.beginTx()) {
 			
 			if (dbInstance.findNode(GraphLabels.PERSON, "pid", person.getPid()) != null)
-				return false;
+				return 0;
 			
 			Node node = dbInstance.createNode(GraphLabels.PERSON);
 			node.setProperty("pid", person.getPid());
 			tx.success();
-			return true;
+			return 1;
 		}
 	}
 	
-	public boolean createConnection(ConnEdge conn) {
+	public int createConnection(ConnEdge conn) {
 		try (Transaction tx = dbInstance.beginTx()) {
 			Node srcNode = dbInstance.findNode(GraphLabels.PERSON, "pid", conn.getSrc());
 			Node dstNode = dbInstance.findNode(GraphLabels.PERSON, "pid", conn.getDst());
+			
+			if (srcNode == null || dstNode == null)
+				return -1;
 			
 			final long srcId = srcNode.getId(), dstId = dstNode.getId();
 			Predicate<Relationship> equals = r -> 
@@ -146,7 +149,7 @@ public class GraphDB implements Closeable {
 			}
 			
 			tx.success();
-			return !exist;
+			return exist ? 0 : 1;
 		}
 	}
 	
@@ -349,6 +352,7 @@ public class GraphDB implements Closeable {
 						}
 					}
 					
+					parent = next;
 					relation = null;
 				}
 			}
