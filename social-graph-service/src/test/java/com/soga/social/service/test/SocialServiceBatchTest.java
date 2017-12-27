@@ -34,7 +34,7 @@ public class SocialServiceBatchTest {
 	
 	
 	public void createPerson(int totalSize) {
-		int reportBatch = 500;
+		int reportBatch = 1000;
 		try {
 			long start = System.currentTimeMillis(), beg = start;
 			System.out.println("--------------------------------------------------------------");
@@ -44,7 +44,7 @@ public class SocialServiceBatchTest {
 				client.createPerson(String.valueOf(i));
 				if (i%reportBatch == 0) {
 					long now = System.currentTimeMillis();
-					long avg = (now-beg)/i;
+					long avg = (now-beg)/reportBatch;
 					System.out.println(String.format("Inserted size: %d, cost time: %d s (%d ms)", 
 							i, (now-beg)/1000, avg));
 					beg = now;
@@ -61,7 +61,7 @@ public class SocialServiceBatchTest {
 	}
 	
 	public void createConnection(int totalNodes, int connSize, boolean random) {
-		int reportBatch = 100;
+		int reportBatch = 1000;
 		try {
 			long start = System.currentTimeMillis(), beg = start;
 			System.out.println("--------------------------------------------------------------");
@@ -82,7 +82,7 @@ public class SocialServiceBatchTest {
 				
 				if (i%reportBatch == 0) {
 					long now = System.currentTimeMillis();
-					long avg = (now-beg)/i;
+					long avg = (now-beg)/reportBatch;
 					System.out.println(String.format("Inserted size: %d, cost time: %d s (%d ms)", 
 							i, (now-beg)/1000, avg));
 					beg = now;
@@ -172,9 +172,9 @@ public class SocialServiceBatchTest {
 	
 	@Test
 	public void testBatch() {
-//		createPerson(10000);
-//		createConnection(1000, 10, true);
-//		queryPerson("1", 2);
+//		createPerson(200000);
+//		createConnection(200000, 10, true);
+		queryPerson("1", 2);
 		iterPerson("1", 2);
 	}
 	
