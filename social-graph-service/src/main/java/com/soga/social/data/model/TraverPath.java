@@ -6,6 +6,7 @@ import java.util.Map;
 public class TraverPath {
 	
 	private long id;
+	private int size;
 	private PersonNode node;
 	private ConnEdge edge;
 	private Map<Long, TraverPath> branches;
@@ -46,5 +47,13 @@ public class TraverPath {
 
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	public int getSize() {
+		return size;
+	}
+
+	public void setSize(int size) {
+		this.size = size;
 	}
 }

@@ -180,7 +180,7 @@ implements Closeable {
     		
 	    	if (request.getOneshot()) {
 	    		TraverPath path = graphDB.traverse(request.getRoot(), request.getConnected(), request.getDepth());
-	    		TraversalTree tree = path == null ? null : TraversalTree.newBuilder().setRoot(parseTraversal(path)).build();
+	    		TraversalTree tree = path == null ? null : TraversalTree.newBuilder().setRoot(parseTraversal(path)).setSize(path.getSize()).build();
 	    		response.onNext(done(path != null, tree));
 	    	} else {
 	    		long ticket = request.getTicket();
@@ -188,7 +188,7 @@ implements Closeable {
 	    		
 	    		Session sess = sessDB.restoreSess(ticket);
 	    		TraverPath path = graphDB.traverse(request.getRoot(), request.getConnected(), request.getDepth(), sess);
-	    		TraversalTree tree = path == null ? null : TraversalTree.newBuilder().setRoot(parseTraversal(path)).setTicket(ticket).build();
+	    		TraversalTree tree = path == null ? null : TraversalTree.newBuilder().setRoot(parseTraversal(path)).setSize(path.getSize()).setTicket(ticket).build();
 	    		response.onNext(done(path != null, tree));
 	    		sessDB.storeSess(ticket, sess);
 	    	}

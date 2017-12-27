@@ -322,6 +322,7 @@ public class GraphDB implements Closeable {
 				uniqueness(uniqueness).
 				depthFirst();
 			
+			int size = 0;
 			for (Path path: traversal.traverse(root)) {
 				
 				TraverPath parent = null;
@@ -350,6 +351,8 @@ public class GraphDB implements Closeable {
 						if (connected) {
 							next.setEdge(ConnEdge.of(parent.getNode().getPid(), next.getNode().getPid(), relation));
 						}
+						
+						size++;
 					}
 					
 					parent = next;
@@ -358,6 +361,7 @@ public class GraphDB implements Closeable {
 			}
 			
 			tx.success();
+			origin.setSize(size);
 			return origin;
 		}
 	}

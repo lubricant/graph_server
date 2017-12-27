@@ -83,4 +83,5 @@ message TraversalNode {
 message TraversalTree {
 	int64 ticket = 1;
 	TraversalNode root = 2;
+	int32 size = 3;
 }
