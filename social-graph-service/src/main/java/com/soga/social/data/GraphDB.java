@@ -260,7 +260,7 @@ public class GraphDB implements Closeable {
 			throw new IllegalArgumentException("Depth should be between 0 and 6.");
 		}
 		
-		return traverse(personId, connected, depth, null, Uniqueness.NODE_GLOBAL, Evaluators.atDepth(depth));
+		return traverse(personId, connected, depth, null, Uniqueness.NODE_PATH, Evaluators.atDepth(depth));
 	}
 	
 	public TraverPath traverse(String personId, boolean connected, final int depth, final Session session) {

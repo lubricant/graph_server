@@ -122,8 +122,7 @@ public class SocialServiceBatchTest {
 			
 			nodeIds = new ArrayList<>(new HashSet<>(nodeIds));
 			Collections.sort(nodeIds);
-			System.out.println(tree.getRoot().getPerson().getId());
-			System.out.println(nodeIds.size());
+			System.out.println(tree.getRoot().getPerson().getId() + " - " + nodeIds.size());
 			System.out.println(nodeIds);
 			
 			System.out.println("=============================================================");
@@ -205,8 +204,8 @@ public class SocialServiceBatchTest {
 	
 	@Test
 	public void testBatch() {
-//		createPerson(100);
-//		createConnection(100, 5, true);
+//		createPerson(20);
+//		createConnection(20, 3, true);
 		queryPerson("1", 2);
 		iterPerson("1", 2);
 	}
