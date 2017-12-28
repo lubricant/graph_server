@@ -3,7 +3,10 @@ package com.soga.social.service.test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.After;
@@ -98,6 +101,12 @@ public class SocialServiceBatchTest {
 		}
 	}
 	
+	private List<String> reduce(List<String> list, TraversalNode node){
+		list.add(node.getPerson().getId());
+		node.getAdjoinList().stream().reduce(list, this::reduce, (a,b)->{a.addAll(b); return a;});
+		return list;
+	}
+	
 	public void queryPerson(String personId, int maxDepth) {
 		try {
 			System.out.println("-------------------------------------------------------------");
@@ -106,7 +115,16 @@ public class SocialServiceBatchTest {
 			
 			long start = System.currentTimeMillis();
 			TraversalTree tree = client.traverseGraphOnce(personId, maxDepth, true);
-			System.out.println(tree);
+//			System.out.println(tree);
+			
+			List<String> nodeIds = tree.getRoot().getAdjoinList().stream().reduce(
+					new ArrayList<>(), this::reduce, (a,b)->{a.addAll(b); return a;});
+			
+			nodeIds = new ArrayList<>(new HashSet<>(nodeIds));
+			Collections.sort(nodeIds);
+			System.out.println(tree.getRoot().getPerson().getId());
+			System.out.println(nodeIds.size());
+			System.out.println(nodeIds);
 			
 			System.out.println("=============================================================");
 			long now = System.currentTimeMillis();
@@ -125,6 +143,7 @@ public class SocialServiceBatchTest {
 			
 			long start = System.currentTimeMillis();
 			
+			Set<String> nodeSet = new HashSet<>();
 			List<List<String>> queues = ImmutableList.of(
 					new ArrayList<>(), 
 					new ArrayList<>()
@@ -146,7 +165,14 @@ public class SocialServiceBatchTest {
 					TraversalTree tree = client.traverseGraph(pid, ticket, true);
 					ticket = tree.getTicket();
 					
-					System.out.println(tree);
+//					System.out.println(tree);
+					List<String> nodeIds = tree.getRoot().getAdjoinList().stream().reduce(
+							new ArrayList<>(), this::reduce, (a,b)->{a.addAll(b); return a;});
+					
+					nodeIds = new ArrayList<>(new HashSet<>(nodeIds));
+					Collections.sort(nodeIds);
+					System.out.println(tree.getRoot().getPerson().getId() + " - " + nodeIds.size());
+					System.out.println(nodeIds);
 					
 					TraversalNode node = tree.getRoot();
 					List<TraversalNode> adjNodes = node.getAdjoinList();
@@ -154,11 +180,18 @@ public class SocialServiceBatchTest {
 						subQue.add(adj.getConnection().getDst());
 					}
 					
+					nodeSet.addAll(subQue);
 					totalSize += tree.getSize();
 				}
 				
 			}
 			
+			
+			List<String> nodeIds =  new ArrayList<>(nodeSet);
+			Collections.sort(nodeIds);
+			System.out.println("=============================================================");
+			System.out.println(nodeIds.size());
+			System.out.println(nodeIds);
 			System.out.println("=============================================================");
 			long now = System.currentTimeMillis();
 			System.out.println(String.format("Cost time: %d s (%d ms)", (now-start)/1000, (now-start)));
@@ -172,8 +205,8 @@ public class SocialServiceBatchTest {
 	
 	@Test
 	public void testBatch() {
-//		createPerson(200000);
-//		createConnection(200000, 10, true);
+//		createPerson(100);
+//		createConnection(100, 5, true);
 		queryPerson("1", 2);
 		iterPerson("1", 2);
 	}
