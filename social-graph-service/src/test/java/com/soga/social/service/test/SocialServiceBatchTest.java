@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -134,7 +135,7 @@ public class SocialServiceBatchTest {
 		}
 	}
 	
-	public void iterPerson(String personId, int maxDepth) {
+	public Long iterPerson(String personId, int maxDepth, Long ticket) {
 		try {
 			System.out.println("-------------------------------------------------------------");
 			System.out.println("-------------------------  Query Node  ----------------------");
@@ -149,7 +150,6 @@ public class SocialServiceBatchTest {
 			);
 			
 			int totalSize = 0;
-			Long ticket = null;
 			int mainQueue = 0;
 			queues.get(mainQueue).add(personId);
 			for (int i=0; i<maxDepth; i++, mainQueue++) {
@@ -200,14 +200,22 @@ public class SocialServiceBatchTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		return ticket;
 	}
 	
 	@Test
-	public void testBatch() {
+	public void testBatch() throws InterruptedException {
 //		createPerson(20);
 //		createConnection(20, 3, true);
-		queryPerson("1", 2);
-		iterPerson("1", 2);
+//		queryPerson("1", 2);
+		
+		Long ticket = null;
+		while (true) {
+			ticket = iterPerson("1", 1, ticket);
+			Thread.sleep(TimeUnit.SECONDS.toMillis(2));
+		}
+		
 	}
 	
 }

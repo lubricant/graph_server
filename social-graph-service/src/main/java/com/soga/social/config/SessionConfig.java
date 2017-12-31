@@ -9,6 +9,7 @@ public class SessionConfig {
 	private final String storeDir;
 	private final String logDir;
 	private final boolean useBloom;
+	private final boolean clearDir;
 	
 	SessionConfig() {
 		Config rootConfig = ConfigLoader.configInstance;
@@ -17,6 +18,7 @@ public class SessionConfig {
 		this.storeDir = rocksdbConfig.getString("storeDir");
 		this.logDir = rocksdbConfig.getString("logDir");
 		this.useBloom = rocksdbConfig.getBoolean("useBloom");
+		this.clearDir = rocksdbConfig.getBoolean("clearDir");
 	}
 
 	public String getStoreDir() {
@@ -29,6 +31,10 @@ public class SessionConfig {
 
 	public boolean isUseBloom() {
 		return useBloom;
+	}
+
+	public boolean isClearDir() {
+		return clearDir;
 	}
 	
 	

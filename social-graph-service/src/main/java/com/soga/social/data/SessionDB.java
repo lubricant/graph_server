@@ -8,14 +8,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang3.Validate;
 import org.rocksdb.CompressionType;
+import org.rocksdb.FlushOptions;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
+import org.rocksdb.RocksIterator;
 import org.rocksdb.WriteOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +58,7 @@ public class SessionDB implements Closeable {
     	Validate.isTrue(!Files.exists(dir) || Files.isDirectory(dir), "Session directory is not a directory: %s", dir);
     	Validate.isTrue(!Files.exists(dir) || Files.isWritable(dir), "Session directory is not writable: %s", dir);
     	
-    	if (Files.exists(dir)) {
+    	if (Files.exists(dir) && config.isClearDir()) {
     		logger.info("Cleaning session directory.");
     		Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
     		    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
@@ -71,13 +73,17 @@ public class SessionDB implements Closeable {
     	opts.setCreateIfMissing(true);
     	opts.setDbLogDir(config.getLogDir());
     	opts.setCompressionType(CompressionType.NO_COMPRESSION);
+    	opts.setDeleteObsoleteFilesPeriodMicros(TimeUnit.SECONDS.toMicros(30));
+    	opts.setWalTtlSeconds(6);
     	
     	if (config.isUseBloom())
     		sessFactory = SessionFactory.useBloomSession();
     	else
     		sessFactory = SessionFactory.useArraySession();
     	
+    	
     	dbInstance = RocksDB.open(opts, config.getStoreDir());
+    	dbInstance.enableFileDeletions(true);
     }
     
 	public void close() throws IOException {
